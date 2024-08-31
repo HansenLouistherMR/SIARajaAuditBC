@@ -18,8 +18,9 @@ class Upload_Perusahaan extends CI_Controller
 
     }
 
-    public function addVlidasi() {
-                
+    public function addVlidasi()
+    {
+
         // Ambil data dari AJAX
 
 
@@ -38,7 +39,7 @@ class Upload_Perusahaan extends CI_Controller
         // redirect('admin/Upload_Perusahaan/addperushaan');
 
         // Kirim respon balik ke AJAX
-      //  echo json_encode(['status' => 'success']);
+        //  echo json_encode(['status' => 'success']);
     }
 
     public function aksi_upload()
@@ -120,6 +121,83 @@ class Upload_Perusahaan extends CI_Controller
         }
 
     }
+
+
+    public function aksi_upload_SPM()
+    {
+        $kode_perusahaan = $this->input->post('id_perusahaan');
+        $id_spm = $this->input->post('segement3');
+        $segement3 = $this->input->post('id_spm');        
+
+
+        // Tentukan path direktori berdasarkan kode_perusahaan
+        $uploadPath = './SPM/uploads/' . $kode_perusahaan . '/' . $id_spm;
+
+        // Cek apakah direktori sudah ada, jika belum, buat direktori
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0777, true); // 0777 memberikan hak akses penuh, true untuk membuat direktori secara rekursif
+        }
+
+        $config['upload_path'] = $uploadPath;
+        $config['allowed_types'] = 'gif|jpg|png|pdf|doc|docx|zip|rar'; // Tambahkan zip dan rar
+        $config['max_size'] = 5120; // Ubah menjadi 5 MB        
+        $this->load->library('upload', $config);
+
+
+        if (!$this->upload->do_upload('fileToUpload')) {
+            $error = array('error' => $this->upload->display_errors());
+
+            // Log error untuk debugging
+            log_message('error', 'File upload error: ' . $this->upload->display_errors());
+
+            // Tampilkan error
+            //   $this->load->view('imageupload_form', $error);
+            $this->session->set_flashdata('error', 'Upload Gagal');
+            redirect('admin/Upload_Perusahaan/addperushaan');
+
+
+        } else {
+            $data = array('image_metadata' => $this->upload->data());
+
+            // Log success untuk debugging
+            log_message('info', 'File uploaded successfully: ' . json_encode($this->upload->data()));
+
+
+
+            $data = $this->upload->data(); // Get the file upload data  
+            $filePath = $data['full_path']; // Full path to the uploaded file  
+            $fileName = $data['file_name']; // Name of the uploaded file  
+            // $fileUrl = base_url('path/to/uploads/' . $fileName); // Create the file URL  
+
+            date_default_timezone_set('Asia/Jakarta'); // Set timezone to Jakarta, Indonesia  
+            $date = date("Y-m-d H:i:s"); // Current date and time  
+
+
+
+            // Simpan path file ke database
+            $uploadData = array(
+                'file_path_new' => $filePath,
+                'id_perusahaan' => $this->input->post('id_perusahaan'),
+                'nama_file_new' => $fileName,
+                'status_upload' => 1
+            );
+
+            $this->db->where('id', $id_spm);
+            $this->db->update('spm', $uploadData);
+
+            
+            $this->session->set_flashdata('success', $akun . ' Berhasil diUpload');
+         //   redirect('admin/Upload_Perusahaan/addperushaanaudit/' . $segment3);
+
+         redirect('Admin/Upload_Perusahaan/addperushaanaudit');
+
+          //  $this->load->view("admin/Upload_perusahaan/addperushaanaudit" . $segment3);
+
+
+        }
+
+    }
+
 
 
 
@@ -302,8 +380,8 @@ class Upload_Perusahaan extends CI_Controller
         $data["Get_Pajak_dibayar_dimuka"] = $this->M_Upload_perusahaan->get_data_by_Pajak_dibayar_dimuka($tabel_data_upload, $data['kode_perusahaan']);
 
 
-         // SPM
-         $data["get_SPM"] = $this->M_Upload_perusahaan->getTableSPM();
+        // SPM
+        $data["get_SPM"] = $this->M_Upload_perusahaan->getTableSPM();
 
         $validation->set_rules($getMenu->rulesData());
         if ($validation->run()) {
@@ -334,10 +412,20 @@ class Upload_Perusahaan extends CI_Controller
         if ($user_id !== NULL) {
             // Tambahkan debug
 
+            // Panggil Segment
+            $data['segement3'] = $this->uri->segment(4); // Third segment
+
             // Panggil data perusahaan yang sudah ada
 
             $perusahaan = $this->db->query("SELECT perusahaan.user_id as user_id_perusahaan, perusahaan.kode_perusahaan as kode_perusahaan
             FROM user user INNER JOIN perusahaan perusahaan ON user.user_id = perusahaan.user_id WHERE perusahaan.user_id = '" . $user_id . "'")->result_array();
+
+
+            // Debugging: Tampilkan query terakhir
+          //  echo $this->db->last_query();
+
+            // Tampilkan hasil
+//            print_r($perusahaan);
 
             // Panggil ID Perusahaan
             $user_id_perusahaan = array_column($perusahaan, 'user_id_perusahaan');
@@ -346,50 +434,49 @@ class Upload_Perusahaan extends CI_Controller
             $data['kode_perusahaan'] = $kode_perusahaan_audit[0];
             $data['user_perusahaan'] = $user_id;
 
-             // Panggil Data Upload
-        $tabel_data_upload = empty($user_id_perusahaan) ? "temp_upload_perusahaan" : "upload_perusahaan"; 
-        $status_pages = empty($user_id_perusahaan) ? "Add" : "Edit"; 
-        $data['status_pages'] = $status_pages;
-
-        
-
-        // HRD & LEGAL , DEPT , ACC , TAX & ETC..
-        $data["Get_Legal_HRD"] = $this->M_Upload_perusahaan->get_data_by_id_LegalHRD($tabel_data_upload, $data['kode_perusahaan']);
-        $data["Get_Akata"] = $this->M_Upload_perusahaan->get_data_by_id_Akta($tabel_data_upload, $data['kode_perusahaan']);
-        $data["Get_Laporan"] = $this->M_Upload_perusahaan->get_data_by_id_Laporan($tabel_data_upload, $data['kode_perusahaan']);
-        $data["Get_Kas_Setara_Kas"] = $this->M_Upload_perusahaan->get_data_by_id_Kas_Setara_kas($tabel_data_upload, $data['kode_perusahaan']);
-        $data["Get_Deposit_berjangka"] = $this->M_Upload_perusahaan->get_data_by_id_Deposit_berjangka($tabel_data_upload, $data['kode_perusahaan']);
-        $data["Get_Inv_Jangka_Pendek"] = $this->M_Upload_perusahaan->get_data_by_id_Inv_Jangka_Pendek($tabel_data_upload, $data['kode_perusahaan']);
-        $data["Get_Piutang_Usaha_AR"] = $this->M_Upload_perusahaan->get_data_by_id_Piutang_Usaha_AR($tabel_data_upload, $data['kode_perusahaan']);
-        $data["Get_Piutang_Lain"] = $this->M_Upload_perusahaan->get_data_by_id_Piutang_Lain($tabel_data_upload, $data['kode_perusahaan']);
-        $data["Het_Persediaan"] = $this->M_Upload_perusahaan->get_data_by_id_Persediaan($tabel_data_upload, $data['kode_perusahaan']);
-        $data["Get_Uang_muka"] = $this->M_Upload_perusahaan->get_data_by_id_Uang_muka($tabel_data_upload, $data['kode_perusahaan']);
-        $data["Get_Pajak_dibayar_dimuka"] = $this->M_Upload_perusahaan->get_data_by_Pajak_dibayar_dimuka($tabel_data_upload, $data['kode_perusahaan']);
+            // Panggil Data Upload
+            $tabel_data_upload = empty($user_id_perusahaan) ? "temp_upload_perusahaan" : "upload_perusahaan";
+            $status_pages = empty($user_id_perusahaan) ? "Add" : "Edit";
+            $data['status_pages'] = $status_pages;
 
 
-        // SPM
-        $data["get_SPM"] = $this->M_Upload_perusahaan->getTableSPM();
+            // HRD & LEGAL , DEPT , ACC , TAX & ETC..
+            $data["Get_Legal_HRD"] = $this->M_Upload_perusahaan->get_data_by_id_LegalHRD($tabel_data_upload, $data['kode_perusahaan']);
+            $data["Get_Akata"] = $this->M_Upload_perusahaan->get_data_by_id_Akta($tabel_data_upload, $data['kode_perusahaan']);
+            $data["Get_Laporan"] = $this->M_Upload_perusahaan->get_data_by_id_Laporan($tabel_data_upload, $data['kode_perusahaan']);
+            $data["Get_Kas_Setara_Kas"] = $this->M_Upload_perusahaan->get_data_by_id_Kas_Setara_kas($tabel_data_upload, $data['kode_perusahaan']);
+            $data["Get_Deposit_berjangka"] = $this->M_Upload_perusahaan->get_data_by_id_Deposit_berjangka($tabel_data_upload, $data['kode_perusahaan']);
+            $data["Get_Inv_Jangka_Pendek"] = $this->M_Upload_perusahaan->get_data_by_id_Inv_Jangka_Pendek($tabel_data_upload, $data['kode_perusahaan']);
+            $data["Get_Piutang_Usaha_AR"] = $this->M_Upload_perusahaan->get_data_by_id_Piutang_Usaha_AR($tabel_data_upload, $data['kode_perusahaan']);
+            $data["Get_Piutang_Lain"] = $this->M_Upload_perusahaan->get_data_by_id_Piutang_Lain($tabel_data_upload, $data['kode_perusahaan']);
+            $data["Het_Persediaan"] = $this->M_Upload_perusahaan->get_data_by_id_Persediaan($tabel_data_upload, $data['kode_perusahaan']);
+            $data["Get_Uang_muka"] = $this->M_Upload_perusahaan->get_data_by_id_Uang_muka($tabel_data_upload, $data['kode_perusahaan']);
+            $data["Get_Pajak_dibayar_dimuka"] = $this->M_Upload_perusahaan->get_data_by_Pajak_dibayar_dimuka($tabel_data_upload, $data['kode_perusahaan']);
 
 
-        // $validation->set_rules($getMenu->rulesData());
-        // if ($validation->run()) {
-        //     $getMenu->save();
-        //     $this->session->set_flashdata('success', 'Berhasil disimpan');
-
-        // }
-
-        $data["Data_role"] = $this->M_Upload_perusahaan->getDataRole();
-        $data["daftar_akun_HRD"] = $this->M_Daftar_akun->getAllDeptHRD();
-        $data["daftar_akun_ALL"] = $this->M_Daftar_akun->getAllDeptALL();
-
-        $data["Get_data_perusahaan"] = $this->M_Upload_perusahaan->GerUserPerusahaan();
+            // SPM
+            $data["get_SPM"] = $this->M_Upload_perusahaan->getTableSPM();
 
 
-        $data["Data_icon"] = $this->M_Upload_perusahaan->getIcon();
-       $this->load->view("admin/Upload_perusahaan/tambah_data", $data);
+            // $validation->set_rules($getMenu->rulesData());
+            // if ($validation->run()) {
+            //     $getMenu->save();
+            //     $this->session->set_flashdata('success', 'Berhasil disimpan');
 
-    //   echo "User ID yang diterima: " .  $tabel_data_upload;
-    //   echo "User ID yang diterima: " .  $data['kode_perusahaan'];
+            // }
+
+            $data["Data_role"] = $this->M_Upload_perusahaan->getDataRole();
+            $data["daftar_akun_HRD"] = $this->M_Daftar_akun->getAllDeptHRD();
+            $data["daftar_akun_ALL"] = $this->M_Daftar_akun->getAllDeptALL();
+
+            $data["Get_data_perusahaan"] = $this->M_Upload_perusahaan->GerUserPerusahaan();
+
+
+            $data["Data_icon"] = $this->M_Upload_perusahaan->getIcon();
+            $this->load->view("admin/Upload_perusahaan/tambah_data", $data);
+
+            //   echo "User ID yang diterima: " .  $tabel_data_upload;
+            //   echo "User ID yang diterima: " .  $data['kode_perusahaan'];
 
 
 

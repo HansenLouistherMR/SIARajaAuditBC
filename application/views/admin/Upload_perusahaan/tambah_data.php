@@ -119,7 +119,7 @@
               <input class="form-control" type="hidden" id="status_pages" name="status_pages"
                 value="<?= $status_pages ?>" readonly />
 
-
+              
 
               <div class="item form-group">
                 <div class="col-sm-6 col-md-6" align="center">
@@ -153,6 +153,7 @@
                               function sendDataToController() {
                                 var userId = $('#nama_perusahaan').val();
 
+                               
                                 $.ajax({
                                   url: "<?= base_url('Admin/Upload_Perusahaan/addperushaanaudit/'); ?>" + userId, // Tambahkan koma untuk memisahkan key-value di objek
                                   type: "POST",
@@ -247,7 +248,7 @@
                   <div class="modal-body">
                     <div class="col-md-12 col-sm-12">
 
-                      <input type="text" class="form-control" size="20" name="id_perusahaan"
+                      <input type="hidden" class="form-control" size="20" name="id_perusahaan"
                         placeholder="Masukkan Komentar">
                       <br>
                       <a href="#" data-toggle="modal" data-target="#tambahExcelModal" class="btn btn-success"><i
@@ -930,7 +931,7 @@
                             <tr>
                               <th style="width: 50px;" bgcolor="#9fb7b7">No</th>
                               <th style="width: 150px;" bgcolor="#9fb7b7">Nama Dokumen</th>
-                              <th style="width: 100px;" bgcolor="#9fb7b7">Nama File</th>
+                              <th style="width: 100px;" bgcolor="#9fb7b7">Link File</th>
                               <th style="width: 120px;" bgcolor="#9fb7b7">Tanggal Upload</th>
                               <th style="width: 150px;" bgcolor="#9fb7b7">Upload File</th>
                               <!-- <th style="width: 150px;" bgcolor="#9fb7b7">Sub dokumen</th>
@@ -970,25 +971,19 @@
 
                                 </td>
 
-                            
-
                                   <td align="left">
 
                                     <!-- Cek data Validasi -->
                                     <!-- Mulai -->
 
-                                    <form action="aksi_upload" method="post" enctype="multipart/form-data">
-                                      <!-- <input type="hidden" size="20" name="id_perusahaan" value="<?= $kode_perusahaan; ?>">
-                                        <input type="hidden" name="dept" value="<?php echo $get_SPM_data->nama_akun ?>">
-                                        <input type="hidden" name="akun" value="<?php echo $get_SPM_data->list ?>">
-                                        <input type="hidden" name="no_list" value="<?php echo $get_SPM_data->no_list ?>"> -->
-                                      <input class="form-control" type="hidden" id="status_pages_upload"
-                                        name="status_pages_upload" value="<?= $status_pages ?>" readonly />
-                                      <!-- <input type="hidden" name="no_akun" value="<?php echo $get_SPM_data->no_akun ?>"> -->
-                                      <input type="file" size="20" name="fileToUpload" id="fileToUpload">
-                                      <!-- <input type="file" size="20" name="fileToUpload" id="fileToUpload<?php echo $j ?>"> -->
-
-                                      <input type="submit" name="submit" value="UPLOAD">
+                                    <!-- <form action="aksi_upload_SPM" method="post" enctype="multipart/form-data"> -->
+                                    <form action="<?= base_url('Admin/Upload_Perusahaan/aksi_upload_SPM'); ?>" method="post" enctype="multipart/form-data">
+                                        <input type="hidden" size="20" name="id_perusahaan" value="<?= $kode_perusahaan; ?>">
+                                        <input type="hidden" name="id_spm" value="<?= $get_SPM_data->id; ?>">
+                                        <input class="form-control" type="hidden" id="segement3" name="segement3"
+                                        value="<?= $segement3; ?>" readonly />
+                                        <input type="file" size="20" name="fileToUpload" id="fileToUpload">
+                                        <input type="submit" name="submit" value="UPLOAD">
                                     </form>
 
                                     <!-- selesau -->
