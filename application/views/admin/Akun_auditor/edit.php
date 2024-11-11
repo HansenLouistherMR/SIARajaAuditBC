@@ -78,8 +78,8 @@
                     <div class="col-md-6 col-sm-6">
                       <select class="form-control" id="no_akun" name="no_akun" required>
                         <?php foreach ($Data_akun as $akun): ?>
-                          <option value="<?php echo $akun->no; ?>" <?php echo ($edit_akun->no_akun == $akun->no) ? 'selected' : ''; ?>>
-                            <?php echo $akun->nama_akun; ?>
+                          <option value="<?php echo $akun->kode_akun; ?>" <?php echo ($edit_akun->Kode_akun == $akun->kode_akun) ? 'selected' : ''; ?>>
+                          <?php echo $akun->kode_akun; ?> -  <?php echo $akun->nama_akun; ?>
                           </option>
                         <?php endforeach; ?>
                       </select>

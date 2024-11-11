@@ -53,16 +53,29 @@ class M_Upload_perusahaan extends CI_Model
     {
         //return $this->db->get($this->_table)->result();
         $sql = "SELECT *  
-            FROM user WHERE role=3";
+            FROM user
+			LEFT JOIN perusahaan
+			ON user.kode_user = perusahaan.kode_user
+			WHERE role=3";
+
+        return $this->db->query($sql)->result();
+    }
+
+    public function GetTahunBukuPerusahaan()
+    {
+        //return $this->db->get($this->_table)->result();
+        $sql = "SELECT *  
+            FROM tahun_buku";
 
         return $this->db->query($sql)->result();
     }
 
 
 
+
     public function insert_upload($data)
     {
-        $this->db->insert('temp_upload_perusahaan', $data); // Ganti 'uploads' dengan nama tabel tempat menyimpan data upload
+        $this->db->insert('upload_perusahaan', $data); // Ganti 'uploads' dengan nama tabel tempat menyimpan data upload
     }
 
     public function update_upload($data)
@@ -88,12 +101,12 @@ class M_Upload_perusahaan extends CI_Model
     public function get_data_by_id_view($kode_perusahaan)
     {
 
-        $sql = "SELECT a.no as no_akun, a.nama_akun as nama_akun, b.no as no_list, b.list as list, c.no_akun as no_akun_temp, c.id_perusahaan, c.file_path as file_path
+        $sql = "SELECT a.kode_akun as kode_akun, a.nama_akun as nama_akun, b.no as no_list, b.list as list, c.no_akun as no_akun_temp, c.id_perusahaan, c.file_path as file_path
         FROM daftar_akun a 
         LEFT JOIN list_akun b 
-        ON a.no = b.no_akun
+        ON a.kode_akun = b.kode_akun
         LEFT JOIN (SELECT no_akun, file_path, no_list , id_perusahaan FROM upload_perusahaan) c 
-        ON a.no = c.no_akun AND b.NO = c.no_list
+        ON a.kode_akun = c.no_akun AND b.NO = c.no_list
         WHERE C.id_perusahaan = '$kode_perusahaan'";
 
         return $this->db->query($sql)->result();
@@ -104,16 +117,18 @@ class M_Upload_perusahaan extends CI_Model
 
     public function get_data_by_id_LegalHRD($tabel_data_upload, $kode_perusahaan)
     {
-        $sql = "SELECT a.no AS no_akun, a.nama_akun AS nama_akun, b.no AS no_list, b.list AS list,   
-                   c.no_akun AS no_akun_temp, c.file_path AS file_path,   
-                   c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload , c.komentar as komentar, c.status_upload
-            FROM daftar_akun a   
-            LEFT JOIN list_akun b   
-            ON a.no = b.no_akun  
-            LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload, komentar, status_upload 
-            FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
-            ON a.no = c.no_akun AND b.no = c.no_list  
-            WHERE a.no = 45";
+        $sql = "SELECT a.Kode_Akun AS Kode_Akun, 
+        a.nama_akun AS nama_akun,  
+        b.list AS list,
+        b.no as id_list,
+         c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload , c.komentar as komentar, c.status_upload, c.no_list, c.no_akun
+        FROM daftar_akun a 
+        LEFT JOIN list_akun b 
+        ON a.Kode_Akun = b.Kode_akun  
+                    LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload, komentar, status_upload 
+                    FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
+                    ON a.Kode_akun = c.no_akun AND b.no = c.no_list 
+                    WHERE a.Kode_akun = 'A11'";
 
         return $this->db->query($sql)->result();
     }
@@ -121,16 +136,18 @@ class M_Upload_perusahaan extends CI_Model
 
     public function get_data_by_id_Akta($tabel_data_upload, $kode_perusahaan)
     {
-        $sql = "SELECT a.no AS no_akun, a.nama_akun AS nama_akun, b.no AS no_list, b.list AS list,   
-                   c.no_akun AS no_akun_temp, c.file_path AS file_path,   
-                   c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload  
-            FROM daftar_akun a   
-            LEFT JOIN list_akun b   
-            ON a.no = b.no_akun  
-            LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload 
-            FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
-            ON a.no = c.no_akun AND b.no = c.no_list  
-            WHERE a.no = 46";
+        
+        $sql = "SELECT a.Kode_Akun AS Kode_Akun, 
+        a.nama_akun AS nama_akun,  
+        b.list AS list,
+         c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload , c.komentar as komentar, c.status_upload, c.no_list, c.no_akun
+        FROM daftar_akun a 
+        LEFT JOIN list_akun b 
+        ON a.Kode_Akun = b.Kode_akun  
+                    LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload, komentar, status_upload 
+                    FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
+                    ON a.Kode_akun = c.no_akun AND b.no = c.no_list 
+                    WHERE a.Kode_akun = 'A12'";
 
         return $this->db->query($sql)->result();
     }
@@ -140,16 +157,17 @@ class M_Upload_perusahaan extends CI_Model
     public function get_data_by_id_Laporan($tabel_data_upload, $kode_perusahaan)
     {
 
-        $sql = "SELECT a.no AS no_akun, a.nama_akun AS nama_akun, b.no AS no_list, b.list AS list,   
-                c.no_akun AS no_akun_temp, c.file_path AS file_path,   
-                c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload  
-            FROM daftar_akun a   
-            LEFT JOIN list_akun b   
-            ON a.no = b.no_akun  
-         LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload 
-            FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
-            ON a.no = c.no_akun AND b.no = c.no_list  
-        WHERE a.no = 47";
+        $sql = "SELECT a.Kode_Akun AS Kode_Akun, 
+        a.nama_akun AS nama_akun,  
+        b.list AS list,
+         c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload , c.komentar as komentar, c.status_upload, c.no_list, c.no_akun
+        FROM daftar_akun a 
+        LEFT JOIN list_akun b 
+        ON a.Kode_Akun = b.Kode_akun  
+                    LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload, komentar, status_upload 
+                    FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
+                    ON a.Kode_akun = c.no_akun AND b.no = c.no_list 
+                    WHERE a.Kode_akun = 'B11'";
 
         return $this->db->query($sql)->result();
 
@@ -159,16 +177,17 @@ class M_Upload_perusahaan extends CI_Model
     public function get_data_by_id_Kas_Setara_kas($tabel_data_upload, $kode_perusahaan)
     {
 
-        $sql = "SELECT a.no AS no_akun, a.nama_akun AS nama_akun, b.no AS no_list, b.list AS list,   
-                c.no_akun AS no_akun_temp, c.file_path AS file_path,   
-                c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload  
-            FROM daftar_akun a   
-            LEFT JOIN list_akun b   
-            ON a.no = b.no_akun  
-            LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload 
-            FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
-            ON a.no = c.no_akun AND b.no = c.no_list  
-        WHERE a.no = 48";
+        $sql = "SELECT a.Kode_Akun AS Kode_Akun, 
+        a.nama_akun AS nama_akun,  
+        b.list AS list,
+         c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload , c.komentar as komentar, c.status_upload, c.no_list, c.no_akun
+        FROM daftar_akun a 
+        LEFT JOIN list_akun b 
+        ON a.Kode_Akun = b.Kode_akun  
+                    LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload, komentar, status_upload 
+                    FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
+                    ON a.Kode_akun = c.no_akun AND b.no = c.no_list 
+                    WHERE a.Kode_akun = 'B12'";
 
         return $this->db->query($sql)->result();
     }
@@ -176,16 +195,17 @@ class M_Upload_perusahaan extends CI_Model
     public function get_data_by_id_Deposit_berjangka($tabel_data_upload, $kode_perusahaan)
     {
 
-        $sql = "SELECT a.no AS no_akun, a.nama_akun AS nama_akun, b.no AS no_list, b.list AS list,   
-        c.no_akun AS no_akun_temp, c.file_path AS file_path,   
-        c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload  
-    FROM daftar_akun a   
-    LEFT JOIN list_akun b   
-    ON a.no = b.no_akun  
-       LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload 
-            FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
-    ON a.no = c.no_akun AND b.no = c.no_list  
-        WHERE a.no = 49";
+        $sql = "SELECT a.Kode_Akun AS Kode_Akun, 
+        a.nama_akun AS nama_akun,  
+        b.list AS list,
+         c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload , c.komentar as komentar, c.status_upload, c.no_list, c.no_akun
+        FROM daftar_akun a 
+        LEFT JOIN list_akun b 
+        ON a.Kode_Akun = b.Kode_akun  
+                    LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload, komentar, status_upload 
+                    FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
+                    ON a.Kode_akun = c.no_akun AND b.no = c.no_list 
+                    WHERE a.Kode_akun = 'B13'";
 
         return $this->db->query($sql)->result();
     }
@@ -193,16 +213,17 @@ class M_Upload_perusahaan extends CI_Model
     public function get_data_by_id_Inv_Jangka_Pendek($tabel_data_upload, $kode_perusahaan)
     {
 
-        $sql = "SELECT a.no AS no_akun, a.nama_akun AS nama_akun, b.no AS no_list, b.list AS list,   
-                c.no_akun AS no_akun_temp, c.file_path AS file_path,   
-                c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload  
-            FROM daftar_akun a   
-            LEFT JOIN list_akun b   
-            ON a.no = b.no_akun  
-           LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload 
-            FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c  
-            ON a.no = c.no_akun AND b.no = c.no_list  
-        WHERE a.no = 50";
+        $sql = "SELECT a.Kode_Akun AS Kode_Akun, 
+        a.nama_akun AS nama_akun,  
+        b.list AS list,
+         c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload , c.komentar as komentar, c.status_upload, c.no_list, c.no_akun
+        FROM daftar_akun a 
+        LEFT JOIN list_akun b 
+        ON a.Kode_Akun = b.Kode_akun  
+                    LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload, komentar, status_upload 
+                    FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
+                    ON a.Kode_akun = c.no_akun AND b.no = c.no_list 
+                    WHERE a.Kode_akun = 'B14'";
 
         return $this->db->query($sql)->result();
     }
@@ -210,16 +231,17 @@ class M_Upload_perusahaan extends CI_Model
     public function get_data_by_id_Piutang_Usaha_AR($tabel_data_upload, $kode_perusahaan)
     {
 
-        $sql = "SELECT a.no AS no_akun, a.nama_akun AS nama_akun, b.no AS no_list, b.list AS list,   
-        c.no_akun AS no_akun_temp, c.file_path AS file_path,   
-        c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload  
-    FROM daftar_akun a   
-    LEFT JOIN list_akun b   
-    ON a.no = b.no_akun  
-     LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload 
-            FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c     
-    ON a.no = c.no_akun AND b.no = c.no_list  
-        WHERE a.no = 51";
+        $sql = "SELECT a.Kode_Akun AS Kode_Akun, 
+        a.nama_akun AS nama_akun,  
+        b.list AS list,
+         c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload , c.komentar as komentar, c.status_upload, c.no_list, c.no_akun
+        FROM daftar_akun a 
+        LEFT JOIN list_akun b 
+        ON a.Kode_Akun = b.Kode_akun  
+                    LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload, komentar, status_upload 
+                    FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
+                    ON a.Kode_akun = c.no_akun AND b.no = c.no_list 
+                    WHERE a.Kode_akun = 'B15'";
 
         return $this->db->query($sql)->result();
     }
@@ -227,16 +249,17 @@ class M_Upload_perusahaan extends CI_Model
     public function get_data_by_id_Piutang_Lain($tabel_data_upload, $kode_perusahaan)
     {
 
-        $sql = "SELECT a.no AS no_akun, a.nama_akun AS nama_akun, b.no AS no_list, b.list AS list,   
-        c.no_akun AS no_akun_temp, c.file_path AS file_path,   
-        c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload  
-    FROM daftar_akun a   
-    LEFT JOIN list_akun b   
-    ON a.no = b.no_akun  
-      LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload 
-            FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c     
-    ON a.no = c.no_akun AND b.no = c.no_list  
-        WHERE a.no = 52";
+        $sql = "SELECT a.Kode_Akun AS Kode_Akun, 
+        a.nama_akun AS nama_akun,  
+        b.list AS list,
+         c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload , c.komentar as komentar, c.status_upload, c.no_list, c.no_akun
+        FROM daftar_akun a 
+        LEFT JOIN list_akun b 
+        ON a.Kode_Akun = b.Kode_akun  
+                    LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload, komentar, status_upload 
+                    FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
+                    ON a.Kode_akun = c.no_akun AND b.no = c.no_list 
+                    WHERE a.Kode_akun = 'B16'";
 
         return $this->db->query($sql)->result();
     }
@@ -244,16 +267,17 @@ class M_Upload_perusahaan extends CI_Model
     public function get_data_by_id_Persediaan($tabel_data_upload, $kode_perusahaan)
     {
 
-        $sql = "SELECT a.no AS no_akun, a.nama_akun AS nama_akun, b.no AS no_list, b.list AS list,   
-        c.no_akun AS no_akun_temp, c.file_path AS file_path,   
-        c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload  
-    FROM daftar_akun a   
-    LEFT JOIN list_akun b   
-    ON a.no = b.no_akun  
-   LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload 
-            FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c     
-    ON a.no = c.no_akun AND b.no = c.no_list  
-        WHERE a.no = 53";
+        $sql = "SELECT a.Kode_Akun AS Kode_Akun, 
+        a.nama_akun AS nama_akun,  
+        b.list AS list,
+         c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload , c.komentar as komentar, c.status_upload, c.no_list, c.no_akun
+        FROM daftar_akun a 
+        LEFT JOIN list_akun b 
+        ON a.Kode_Akun = b.Kode_akun  
+                    LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload, komentar, status_upload 
+                    FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
+                    ON a.Kode_akun = c.no_akun AND b.no = c.no_list 
+                    WHERE a.Kode_akun = 'B17'";
 
         return $this->db->query($sql)->result();
     }
@@ -261,16 +285,17 @@ class M_Upload_perusahaan extends CI_Model
     public function get_data_by_id_Uang_muka($tabel_data_upload, $kode_perusahaan)
     {
 
-        $sql = "SELECT a.no AS no_akun, a.nama_akun AS nama_akun, b.no AS no_list, b.list AS list,   
-                c.no_akun AS no_akun_temp, c.file_path AS file_path,   
-                c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload  
-            FROM daftar_akun a   
-            LEFT JOIN list_akun b   
-            ON a.no = b.no_akun  
-            LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload 
-            FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c     
-            ON a.no = c.no_akun AND b.no = c.no_list  
-        WHERE a.no = 54";
+        $sql = "SELECT a.Kode_Akun AS Kode_Akun, 
+        a.nama_akun AS nama_akun,  
+        b.list AS list,
+         c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload , c.komentar as komentar, c.status_upload, c.no_list, c.no_akun
+        FROM daftar_akun a 
+        LEFT JOIN list_akun b 
+        ON a.Kode_Akun = b.Kode_akun  
+                    LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload, komentar, status_upload 
+                    FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
+                    ON a.Kode_akun = c.no_akun AND b.no = c.no_list 
+                    WHERE a.Kode_akun = 'B18'";
 
         return $this->db->query($sql)->result();
     }
@@ -278,19 +303,39 @@ class M_Upload_perusahaan extends CI_Model
     public function get_data_by_Pajak_dibayar_dimuka($tabel_data_upload, $kode_perusahaan)
     {
 
-        $sql = "SELECT a.no AS no_akun, a.nama_akun AS nama_akun, b.no AS no_list, b.list AS list,   
-                c.no_akun AS no_akun_temp, c.file_path AS file_path,   
-                c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload  
-            FROM daftar_akun a   
-            LEFT JOIN list_akun b   
-            ON a.no = b.no_akun  
-              LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload 
-            FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c     
-            ON a.no = c.no_akun AND b.no = c.no_list  
-        WHERE a.no = 55";
+        $sql = "SELECT a.Kode_Akun AS Kode_Akun, 
+        a.nama_akun AS nama_akun,  
+        b.list AS list,
+         c.nama_file AS nama_file, c.tanggal_upload AS tanggal_upload , c.komentar as komentar, c.status_upload, c.no_list, c.no_akun
+        FROM daftar_akun a 
+        LEFT JOIN list_akun b 
+        ON a.Kode_Akun = b.Kode_akun  
+                    LEFT JOIN (SELECT no_akun, id_perusahaan, file_path, no_list, nama_file, tanggal_upload, komentar, status_upload 
+                    FROM $tabel_data_upload WHERE id_perusahaan =  '$kode_perusahaan') c   
+                    ON a.Kode_akun = c.no_akun AND b.no = c.no_list 
+                    WHERE a.Kode_akun = 'B19'";
 
         return $this->db->query($sql)->result();
     }
+
+
+    public function get_data_konfirmasi_bank()
+    {
+
+        $sql = "SELECT * FROM `konfirmasi_bank_rupiah` UNION ALL SELECT * FROM `konfirmasi_bank_USD`;";
+
+        return $this->db->query($sql)->result();
+    }
+
+    public function get_data_konfirmasi_piutang_usaha()
+    {
+
+        $sql = "SELECT * FROM `konfirmasi_piutang_usaha`";
+
+        return $this->db->query($sql)->result();
+    }
+
+
 
 
     public function getTableSPM()

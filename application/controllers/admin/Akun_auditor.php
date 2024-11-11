@@ -19,6 +19,8 @@ class Akun_auditor extends CI_Controller
     public function index()
     {
         $data["data_role"] = $this->M_akun_auditor->GetDataAkun();
+        $data["filter_daftar_akun"] = $this->M_akun_auditor->HetfILTERGetDataAkun();
+
         $data["data_menu"] = $this->user_model->getMenu();
         $data["user_role"] = $this->user_model->getRole();
         $this->load->view("admin/Akun_auditor/list", $data);
@@ -77,6 +79,19 @@ class Akun_auditor extends CI_Controller
                 redirect(site_url('admin/Akun_auditor'));
         }
     }
+
+
+    public function getDataNamaAkun()
+    {
+        $data["data_role"] = $this->M_akun_auditor->getdataNamaAKunfilter();
+        $data["filter_daftar_akun"] = $this->M_akun_auditor->HetfILTERGetDataAkun();
+
+       
+        $data["data_menu"] = $this->user_model->getMenu();
+        $data["user_role"] = $this->user_model->getRole();
+        $this->load->view("admin/Akun_auditor/list", $data);
+    }
+
 
    
 

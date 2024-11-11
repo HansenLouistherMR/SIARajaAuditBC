@@ -48,12 +48,33 @@ class M_akun_auditor extends CI_Model
     public function GetDataAkun()
     {
         //return $this->db->get($this->_table)->result();
-        $sql = "SELECT list_akun.no as id,
-        list_akun.list as list,
-        daftar_akun.nama_akun as nama_akun
+        $sql = "SELECT 
+			list_akun.no as id, list_akun.list as list, 
+			daftar_akun.kode_akun,
+			daftar_akun.nama_akun as nama_akun,
+			list_akun.no_urut
+			FROM
+				daftar_akun daftar_akun
+			LEFT JOIN
+				list_akun
+			ON list_akun.Kode_akun = daftar_akun.kode_akun
+			ORDER BY daftar_akun.kode_akun ASC";
+
+        return $this->db->query($sql)->result();
+    }
+
+    public function HetfILTERGetDataAkun()
+    {
+        //return $this->db->get($this->_table)->result();
+        $sql = "SELECT 
+        daftar_akun.kode_akun as kode_akun,
+		daftar_akun.nama_akun as nama_akun
          FROM list_akun list_akun 
         LEFT JOIN daftar_akun daftar_akun
-        ON list_akun.no_akun = daftar_akun.no";
+        ON list_akun.Kode_akun = daftar_akun.kode_akun
+		WHERE daftar_akun.kode_akun IS NOT NULL
+        GROUP BY daftar_akun.nama_akun
+		ORDER BY  daftar_akun.kode_akun ASC";
 
         return $this->db->query($sql)->result();
     }
@@ -62,8 +83,11 @@ class M_akun_auditor extends CI_Model
     public function GetDataAkunEdit()
     {
         //return $this->db->get($this->_table)->result();
-        $sql = "SELECT *
-         FROM daftar_akun";
+        $sql = "SELECT 
+        kode_akun as kode_akun,
+		nama_akun as nama_akun
+         FROM daftar_akun
+		 ORDER BY  kode_akun ASC";
 
         return $this->db->query($sql)->result();
     }
@@ -76,6 +100,21 @@ class M_akun_auditor extends CI_Model
     }
 
 
+    public function getdataNamaAKunfilter()
+    {
+        $post = $this->input->post();
+        $nama_akun = $post["nama_akun"];
+
+        $sql = "SELECT 
+        daftar_akun.kode_akun,
+		list_akun.no as id, 
+		list_akun.list as list, 
+		daftar_akun.nama_akun as nama_akun 
+		FROM list_akun list_akun LEFT JOIN daftar_akun daftar_akun 
+		ON list_akun.kode_akun = daftar_akun.kode_akun WHERE daftar_akun.kode_akun =  '$nama_akun'";
+        return $this->db->query($sql)->result();
+
+    }
 
 
     public function getByNomor($no)

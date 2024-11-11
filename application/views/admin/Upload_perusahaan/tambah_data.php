@@ -119,7 +119,7 @@
               <input class="form-control" type="hidden" id="status_pages" name="status_pages"
                 value="<?= $status_pages ?>" readonly />
 
-              
+
 
               <div class="item form-group">
                 <div class="col-sm-6 col-md-6" align="center">
@@ -153,7 +153,7 @@
                               function sendDataToController() {
                                 var userId = $('#nama_perusahaan').val();
 
-                               
+                                alert();
                                 $.ajax({
                                   url: "<?= base_url('Admin/Upload_Perusahaan/addperushaanaudit/'); ?>" + userId, // Tambahkan koma untuk memisahkan key-value di objek
                                   type: "POST",
@@ -175,13 +175,13 @@
                               onchange="sendDataToController()">
                               <option value="">Pilih Perusahaan</option>
                               <?php foreach ($Get_data_perusahaan as $Get_data_perusahaan_View): ?>
-                                <option value="<?php echo $Get_data_perusahaan_View->user_id; ?>" <?php if ($Get_data_perusahaan_View->user_id == $user_perusahaan)
+                                <option value="<?php echo $Get_data_perusahaan_View->kode_perusahaan; ?>" <?php if ($Get_data_perusahaan_View->kode_user == $user_perusahaan)
                                      echo 'selected'; ?>>
+                                  <?php echo $user_perusahaan ?> -
                                   <?php echo $Get_data_perusahaan_View->fullname; ?>
                                 </option>
                               <?php endforeach; ?>
                             </select>
-
 
                             <div id="result">
 
@@ -201,8 +201,15 @@
 
                         </td>
                         <td>
-                          <input type='text' class="form-control" placeholder="Tahun Audit" value="2024"
-                            name="tahun_audit" readonly />
+                          <select class="form-control" id="tahun_audit" name="tahun_audit" required>
+                            <option value="">Pilih Tahun Buku</option>
+                            <?php foreach ($Get_taun_buku as $Get_taun_buku_data): ?>
+                              <option value="<?php echo $Get_taun_buku_data->tahun; ?>" <?php if ($Get_taun_buku_data->tahun == $user_perusahaan)
+                                   echo 'selected'; ?>>
+                                <?php echo $Get_taun_buku_data->tahun; ?>
+                              </option>
+                            <?php endforeach; ?>
+                          </select>
                         </td>
                       </tr>
                       <!-- Selesai -->
@@ -314,7 +321,7 @@
                       <li class="nav-item">
                         <a class="nav-link" id="finance-tab" data-toggle="tab" href="#finance-dept" role="tab"
                           aria-controls="finance-dept" aria-selected="false" style="color: red;"
-                          onclick="showDiv('finance-dept')">SPD REPRESENTATION LATTER</a>
+                          onclick="showDiv('finance-dept')">SPD REFLET</a>
                       </li>
                       <li class="nav-item">
                         <a class="nav-link" id="finance-tab" data-toggle="tab" href="#finance-dept" role="tab"
@@ -336,6 +343,11 @@
                         aria-controls="finance-dept" aria-selected="false" style="color: red;"
                         onclick="showDiv('finance-dept')">LAP DISETUJI FINAL</a>
                     </li>
+                    <li class="nav-item">
+                      <a class="nav-link" id="finance-tab" data-toggle="tab" href="#finance-dept" role="tab"
+                        aria-controls="finance-dept" aria-selected="false" style="color: red;"
+                        onclick="showDiv('finance-dept')">REKONFIRM</a>
+                    </li>
                   </ul>
 
                   <!-- HRD & LEGAL  -->
@@ -344,564 +356,9 @@
                     <div class="tab-pane fade show active" id="hrd-legal" role="tabpanel" aria-labelledby="hrd-tab">
                       <div class="card-box table-responsive width">
 
-                        <!-- HRD & LEGAL  -->
-                        <!-- mulai -->
-                        <table border="1" id="" class="display table table-striped table-bordered" style="width:100%">
-                          <thead>
-                            <tr>
-                              <th bgcolor="#1471cf" colspan="2" style="color: white;">
-                                LEGALITAS
-                              </th>
-                            </tr>
-                            <tr>
-                              <th style="width: 50px;" bgcolor="#9fb7b7">No</th>
-                              <th style="width: 150px;" bgcolor="#9fb7b7">Keterangan</th>
-                              <th style="width: 100px;" bgcolor="#9fb7b7">Nama File</th>
-                              <th style="width: 120px;" bgcolor="#9fb7b7">Tanggal Upload</th>
-                              <th style="width: 150px;" bgcolor="#9fb7b7"></th>
-                              <th style="width: 150px;" bgcolor="#9fb7b7">Validasi Auditor</th>
-                            </tr>
-                          </thead>
-                          <tbody>
+                        <!-- top navigation -->
+                        <?php $this->load->view("admin/Upload_perusahaan/hrd_legal.php") ?>
 
-
-                            <!-- Data will be appended here -->
-                            <?php $j = 1; ?>
-                            <?php foreach ($Get_Legal_HRD as $Get_Legal_HRD_data): ?>
-                              <tr>
-                                <td align="center"><?php echo $j ?></td>
-                                <td align="left"><?php echo $Get_Legal_HRD_data->list ?></td>
-                                <?php if (isset($Get_Legal_HRD_data->file_path) && $Get_Legal_HRD_data->file_path !== null && trim($Get_Legal_HRD_data->file_path) !== ''): ?>
-                                  <!-- Your code here when the condition is true -->
-                                  <!-- Cek Validasi selesai   -->
-                                  <?php if ($Get_Legal_HRD_data->status_upload == 1): ?>
-
-                                    <td style="background-color: #5fff57;">
-                                      <a href=" <?= base_url('uploads/' . $kode_perusahaan . '/' . $Get_Legal_HRD_data->nama_akun . '/' . $Get_Legal_HRD_data->nama_file); ?>"
-                                        target="_blank">
-                                        <?php
-                                        echo substr($Get_Legal_HRD_data->nama_file, 0, 15) . '.....';
-                                        ?>
-                                      </a>
-                                    <?php else: ?>
-
-                                    <td style="background-color: #f4ea94;">
-                                      <a href=" <?= base_url('uploads/' . $kode_perusahaan . '/' . $Get_Legal_HRD_data->nama_akun . '/' . $Get_Legal_HRD_data->nama_file); ?>"
-                                        target="_blank">
-                                        <?php
-                                        echo substr($Get_Legal_HRD_data->nama_file, 0, 15) . '.....';
-                                        ?>
-                                      </a>
-                                    <?php endif; ?>
-                                    <!-- Selesai -->
-
-                                    <!-- <a href="http://localhost/rajaaudit/uploads/RAJAAUDIT0004/HRD%20&%20LEGAL/Template_Script_Konten_Inti_Kursus_Online_ver_1_3_(1).docx">About us</a>                                </td> -->
-                                  <?php else: ?>
-                                  <td style="background-color: #e67272;">
-
-                                  </td>
-                                <?php endif; ?>
-
-                                <td align="left">
-                                  <?php
-                                  // Assuming $Get_Legal_HRD_data->tanggal_upload contains the datetime string  
-                                  $tanggal_upload = $Get_Legal_HRD_data->tanggal_upload;
-
-                                  if (isset($tanggal_upload)):
-                                    $formatted_date = date('d F Y H:i:s', strtotime($tanggal_upload));
-                                    echo $formatted_date;
-                                  else:
-                                  endif;
-                                  ?>
-
-                                </td>
-
-                                <?php if ($this->session->userdata('role') == 3): ?>
-
-                                  <td align="left">
-
-                                    <!-- Cek data Validasi -->
-                                    <!-- Mulai -->
-                                    <?php if ($Get_Legal_HRD_data->status_upload != 1): ?>
-                                      <form action="aksi_upload" method="post" enctype="multipart/form-data">
-                                        <input type="hidden" size="20" name="id_perusahaan" value="<?= $kode_perusahaan; ?>">
-                                        <input type="hidden" name="dept" value="<?php echo $Get_Legal_HRD_data->nama_akun ?>">
-                                        <input type="hidden" name="akun" value="<?php echo $Get_Legal_HRD_data->list ?>">
-                                        <input type="hidden" name="no_list"
-                                          value="<?php echo $Get_Legal_HRD_data->no_list ?>">
-                                        <input class="form-control" type="hidden" id="status_pages_upload"
-                                          name="status_pages_upload" value="<?= $status_pages ?>" readonly />
-                                        <input type="hidden" name="no_akun"
-                                          value="<?php echo $Get_Legal_HRD_data->no_akun ?>">
-                                        <input type="file" size="20" name="fileToUpload" id="fileToUpload">
-                                        <!-- <input type="file" size="20" name="fileToUpload" id="fileToUpload<?php echo $j ?>"> -->
-
-                                        <input type="submit" name="submit" value="UPLOAD">
-                                      </form>
-                                    <?php endif; ?>
-                                    <!-- selesau -->
-
-                                  </td>
-
-                                  <td align="left">
-                                    <!-- <form action="aksi_upload" method="post" enctype="multipart/form-data">
-                                          <?php echo $Get_Legal_HRD_data->nama_akun ?>
-                                        </form> -->
-                                    <?php echo $Get_Legal_HRD_data->komentar ?>
-
-
-                                  </td>
-
-                                <?php else: ?>
-
-                                  <td align="left">
-                                  </td>
-
-                                  <td align="left">
-
-                                    <!-- <ul class="nav navbar-right panel_toolbox"><a href="#" data-toggle="modal"
-                                            data-target="#tambahModal" class="btn btn-success">
-                                            <i class="fa fa-plus"></i>
-                                            Masukkan Komentar</a></ul> -->
-
-                                    <?php if (isset($Get_Legal_HRD_data->file_path) && $Get_Legal_HRD_data->file_path !== null && trim($Get_Legal_HRD_data->file_path) !== ''): ?>
-                                      <!-- Cek Vlidasi -->
-                                      <!-- Mulai -->
-                                      <?php if ($Get_Legal_HRD_data->status_upload == 1): ?>
-                                        <?= $Get_Legal_HRD_data->komentar; ?>
-                                      <?php else: ?>
-                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal"
-                                          onclick="setValues('<?php echo $kode_perusahaan; ?>', '<?php echo $Get_Legal_HRD_data->no_list; ?>')">
-                                          Validasi
-                                        </button>
-                                      <?php endif; ?>
-                                      <!-- Selesai -->
-
-                                    <?php else: ?>
-                                      -- Data Upload Masih Kosong --
-                                    <?php endif; ?>
-                                  </td>
-
-                                <?php endif; ?>
-
-                              </tr>
-                              <?php $j++; ?>
-                            <?php endforeach; ?>
-
-
-                          </tbody>
-                        </table>
-
-                        <!-- Selesai -->
-
-
-                        <!-- Save Model Audit -->
-                        <div class="modal fade" id="SaveModelAuidt" tabindex="-1" role="dialog"
-                          aria-labelledby="exampleModalLabel" aria-hidden="true">
-                          <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">
-                                  Apakah anda yakin?
-                                </h5>
-                                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                                  <span aria-hidden="true">×</span>
-                                </button>
-                              </div>
-                              <div class="modal-body">Data akan disimpan.</div>
-                              <div class="modal-footer">
-                                <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
-                                <a id="btn-save-audit" class="btn btn-success" href="#">Simpan</a>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Modal -->
-                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-                          aria-hidden="true">
-                          <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title" id="myModalLabel">Validasi Data</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                  <span aria-hidden="true">&times;</span>
-                                </button>
-                              </div>
-                              <div class="modal-body">
-                                <form id="dataForm">
-                                  <div class="form-group">
-                                    <label for="inputData">Data</label>
-                                    <input type="text" class="form-control" id="inputData" name="data"
-                                      placeholder="Masukkan Koemntar">
-                                  </div>
-                                  <!-- Input hidden untuk menyimpan dua nilai -->
-                                  <input type="hidden" id="kodePerusahaan" name="kodePerusahaan">
-                                  <input type="hidden" id="noList" name="noList">
-                                </form>
-                              </div>
-                              <div class="modal-footer">
-                                <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Batalkan Validasi</button> -->
-                                <button type="button" class="btn btn-secondary" onclick="CanceData()">Batalkan
-                                  Validasi</button>
-                                <button type="button" class="btn btn-primary" onclick="submitData()">Kirim Ke
-                                  Client</button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Save data Pop Up -->
-                        <script>
-                          function setValues(kodePerusahaan, noList) {
-                            console.log('kodePerusahaan:', kodePerusahaan); // Debug
-                            console.log('noList:', noList); // Debug
-                            $('#kodePerusahaan').val(kodePerusahaan);
-                            $('#noList').val(noList);
-                          }
-
-                          function submitData() {
-                            var kodePerusahaan = $('#kodePerusahaan').val();
-                            var noList = $('#noList').val();
-                            var data = $('#inputData').val();
-
-                            $.ajax({
-                              url: '<?php echo base_url("Admin/Upload_Perusahaan/addVlidasi"); ?>', // Ganti dengan URL ke controller
-                              type: 'POST',
-                              data: {
-                                kodePerusahaan: kodePerusahaan,
-                                noList: noList,
-                                data: data
-                              },
-                              success: function (response) {
-                                $('#myModal').modal('hide');
-                                $('#SaveModelAuidt').modal('show');
-
-                                $('#btn-save-audit').on('click', function () {
-                                  window.location.href = "<?php echo base_url('Admin/Upload_Perusahaan/addperushaanaudit'); ?>/" + <?= $user_perusahaan; ?>;
-                                });
-                              },
-
-                              error: function () {
-                                alert("Terjadi kesalahan, coba lagi.");
-                              }
-                            });
-                          }
-
-
-                          function CanceData() {
-
-                            alert(Test);
-                            // var kodePerusahaan = $('#kodePerusahaan').val();
-                            // var noList = $('#noList').val();
-                            // var data = $('#inputData').val();
-
-                            // $.ajax({
-                            //   url: '<?php echo base_url("Admin/Upload_Perusahaan/method_name"); ?>', // Ganti dengan URL ke controller
-                            //   type: 'POST',
-                            //   data: {
-                            //     kodePerusahaan: kodePerusahaan,
-                            //     noList: noList,
-                            //     data: data
-                            //   },
-                            //   success: function (response) {
-                            //     $('#myModal').modal('hide');
-                            //     $('#SaveModelAuidt').modal('show');
-
-                            //     $('#btn-save-audit').on('click', function () {
-                            //       window.location.href = "<?php echo base_url('Admin/Upload_Perusahaan/addperushaanaudit'); ?>/" + <?= $user_perusahaan; ?>;
-                            //     });
-                            //   },
-
-                            //   error: function () {
-                            //     alert("Terjadi kesalahan, coba lagi.");
-                            //   }
-                            // });
-                          }
-                        </script>
-
-
-                        <!-- HRD & LEGAL  -->
-                        <!-- mulai -->
-                        <div class="table-container">
-                          <table border="1" id="" class="display table table-striped table-bordered" style="width:100%">
-                            <thead>
-                              <tr>
-                                <th bgcolor="#1471cf" colspan="2" style="color: white;">
-                                  AKTA
-                                </th>
-                              </tr>
-                              <tr>
-                                <th style="width: 50px;" bgcolor="#9fb7b7">No</th>
-                                <th style="width: 150px;" bgcolor="#9fb7b7">Keterangan</th>
-                                <th style="width: 150px;" bgcolor="#9fb7b7">Nama File</th>
-                                <th style="width: 120px;" bgcolor="#9fb7b7">Tanggal Upload</th>
-                                <th style="width: 50px;" bgcolor="#9fb7b7"></th>
-                                <th style="width: 100px;" bgcolor="#9fb7b7">File</th>
-                                <!-- <th style="width: 100px;" bgcolor="#9fb7b7">Nomor Akta</th>
-                                <th style="width: 100px;" bgcolor="#9fb7b7">Tanggal Akta</th>
-                                <th style="width: 50px;" bgcolor="#9fb7b7">Perubahan Akta</th> -->
-                                <th style="width: 150px;" bgcolor="#9fb7b7">Validasi Auditor</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-
-
-                              <!-- Panggil data Akta Perubahan -->
-                              <!-- mulai -->
-                              <script>
-                                $(document).ready(function () {
-                                  $('#minusButton').click(function () {
-                                    alert();
-                                    $('#tableDiv').toggle(); // Tampilkan atau sembunyikan div
-                                  });
-                                });
-                              </script>
-                              <!-- Selesai -->
-
-
-                              <!-- Data will be appended here -->
-                              <?php $j = 1; ?>
-                              <?php foreach ($Get_Akata as $Get_Akata_data): ?>
-                                <tr>
-                                  <td align="center"><?php echo $j ?></td>
-                                  <td align="left"><?php echo $Get_Akata_data->list ?>
-
-                                    <?php if ($Get_Akata_data->no_list == 22): ?>
-
-                                      <button id="minusButton">-</button>
-                                    <?php endif; ?>
-
-                                  </td>
-                                  <?php if (isset($Get_Akata_data->file_path) && $Get_Akata_data->file_path !== null && trim($Get_Akata_data->file_path) !== ''): ?>
-                                    <!-- Your code here when the condition is true -->
-                                    <td style="background-color: #f4ea94;">
-                                      <a href=" <?= base_url('uploads/' . $kode_perusahaan . '/' . $Get_Akata_data->nama_akun . '/' . $Get_Akata_data->nama_file); ?>"
-                                        target="_blank">
-                                        <?php
-                                        echo substr($Get_Akata_data->nama_file, 0, 15) . '.....';
-                                        ?>
-                                      </a>
-                                      <!-- <a href="http://localhost/rajaaudit/uploads/RAJAAUDIT0004/HRD%20&%20LEGAL/Template_Script_Konten_Inti_Kursus_Online_ver_1_3_(1).docx">About us</a>                                </td> -->
-                                    <?php else: ?>
-                                    <td style="background-color: #e67272;">
-
-                                    </td>
-                                  <?php endif; ?>
-
-                                  <td align="left">
-                                    <?php
-                                    // Assuming $Get_Legal_HRD_data->tanggal_upload contains the datetime string  
-                                    $tanggal_upload = $Get_Akata_data->tanggal_upload;
-
-                                    if (isset($tanggal_upload)):
-                                      $formatted_date = date('d F Y H:i:s', strtotime($tanggal_upload));
-                                      echo $formatted_date;
-                                    else:
-                                    endif;
-                                    ?>
-
-                                  </td>
-
-                                  <?php if ($this->session->userdata('role') == 3): ?>
-
-                                    <td align="left">
-                                      <form action="aksi_upload" method="post" enctype="multipart/form-data">
-                                        <input type="hidden" size="20" name="id_perusahaan"
-                                          value="<?= $kode_perusahaan; ?>">
-                                        <input type="hidden" name="dept" value="<?php echo $Get_Akata_data->nama_akun ?>">
-                                        <input type="hidden" name="akun" value="<?php echo $Get_Akata_data->list ?>">
-                                        <input type="hidden" name="no_list" value="<?php echo $Get_Akata_data->no_list ?>">
-                                        <input class="form-control" type="hidden" id="status_pages_upload"
-                                          name="status_pages_upload" value="<?= $status_pages ?>" readonly />
-                                        <input type="hidden" name="no_akun" value="<?php echo $Get_Akata_data->no_akun ?>">
-                                        <input type="file" size="20" name="fileToUpload" id="fileToUpload">
-                                        <!-- <input type="file" size="20" name="fileToUpload" id="fileToUpload<?php echo $j ?>"> -->
-
-                                        <input type="submit" name="submit" value="UPLOAD">
-                                      </form>
-                                    </td>
-
-                                    <td align="left">
-                                      <?php if ($Get_Akata_data->no_list == 22): ?>
-
-                                        <button type="button" class="btn btn-primary" data-toggle="modal"
-                                          data-target="#ModalAktaPerubahan"
-                                          onclick="setValues('<?php echo $kode_perusahaan; ?>', '<?php echo $Get_Legal_HRD_data->no_list; ?>')">
-                                          Pilih Perubahan
-                                        </button>
-                                      <?php endif; ?>
-                                    </td>
-
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="ModalAktaPerubahan" tabindex="-1" role="dialog"
-                                      aria-labelledby="myModalLabel" aria-hidden="true">
-                                      <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                          <div class="modal-header">
-                                            <h5 class="modal-title" id="myModalLabel">Tambah Perubahan Akta</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                              <span aria-hidden="true">&times;</span>
-                                            </button>
-                                          </div>
-                                          <div class="modal-body">
-                                            <form id="dataForm">
-                                              <div class="form-group">
-                                                <label for="inputData">Nomor</label>
-                                                <input
-                                                  class="form-control <?php echo form_error('nama_perusahaan') ? 'is-invalid' : '' ?>"
-                                                  type="text" id="nama_perusahaan" name="nama_perusahaan"
-                                                  placeholder="Nomor Akta" required />
-                                              </div>
-                                              <div class="form-group">
-                                                <label for="inputData">Tanggal Akta</label>
-                                                <input
-                                                  class="form-control <?php echo form_error('nama_perusahaan') ? 'is-invalid' : '' ?>"
-                                                  type="text" id="nama_perusahaan" name="nama_perusahaan"
-                                                  placeholder="Tanggal Akta" required />
-                                              </div>
-                                              <div class="form-group">
-                                                <label for="inputData">Perubahan Akta</label>
-                                                <select class="form-control" id="daftar_akun" name="daftar_akun" required>
-                                                  <option value="1">Perihal Struktur</option>
-                                                  <option value="1">Perihal Pemegang Saham</option>
-                                                  <option value="1">Perihal Struktur & Pemegang Saham</option>
-                                                  <option value="1">Perihal Anggaran Dasar & KBLI</option>
-                                                </select>
-                                              </div>
-                                              <div class="form-group">
-                                                <label for="inputData">Upload File </label>
-                                                <input type="file" size="20" name="fileToUpload" id="fileToUpload">
-                                              </div>
-                                              <!-- Input hidden untuk menyimpan dua nilai -->
-                                              <input type="hidden" id="kodePerusahaan" name="kodePerusahaan">
-                                              <input type="hidden" id="noList" name="noList">
-                                            </form>
-                                          </div>
-                                          <div class="modal-footer">
-                                            <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Batalkan Validasi</button> -->
-                                            <button type="button" class="btn btn-secondary"
-                                              onclick="CanceData()">Batalkan</button>
-                                            <button type="button" class="btn btn-primary"
-                                              onclick="submitData()">Simpan</button>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <!-- <td align="left">
-                                      <input
-                                        class="form-control <?php echo form_error('nama_perusahaan') ? 'is-invalid' : '' ?>"
-                                        type="text" id="nama_perusahaan" name="nama_perusahaan" placeholder="Nomor Akta"
-                                        required />
-                                    </td>
-
-                                    <td align="left">
-                                      <input
-                                        class="form-control <?php echo form_error('nama_perusahaan') ? 'is-invalid' : '' ?>"
-                                        type="text" id="nama_perusahaan" name="nama_perusahaan" placeholder="Tanggal Akta"
-                                        required />
-                                    </td>
-
-                                    <td align="left">
-                                      <select class="form-control" id="daftar_akun" name="daftar_akun" required>
-                                        <option value="1">Perihal Struktur</option>
-                                        <option value="1">Perihal Pemegang Saham</option>
-                                        <option value="1">Perihal Struktur & Pemegang Saham</option>
-                                        <option value="1">Perihal Anggaran Dasar & KBLI</option>
-                                      </select>
-                                    </td> -->
-
-                                    <td align="left">
-                                      <!-- <form action="aksi_upload" method="post" enctype="multipart/form-data">
-                                          <?php echo $Get_Legal_HRD_data->nama_akun ?>
-                                        </form> -->
-
-                                      -- Komentar Masih Kosong --
-                                    </td>
-
-                                  <?php else: ?>
-
-                                    <td align="left">
-                                    </td>
-
-                                    <td align="left">
-
-                                      <input type="hidden" name="no_akun"
-                                        value="<?php echo $Get_Legal_HRD_data->no_akun ?>">
-
-                                      <ul class="nav navbar-right panel_toolbox"><a href="#" data-toggle="modal"
-                                          data-target="#tambahModal" class="btn btn-success">
-                                          <i class="fa fa-plus"></i>
-                                          Masukkan Komentar</a></ul>
-
-                                    </td>
-                                  <?php endif; ?>
-
-                                  <!-- <td align="center">
-                                <a href="<?php echo site_url('admin/Upload_Perusahaan/view_data/' . $data_role->kode_perusahaan) ?>"
-                                  style="margin-right: 10px"><i class="fa fa-edit"></i> View Data</a>
-                              </td> -->
-                                </tr>
-                                <?php $j++; ?>
-                              <?php endforeach; ?>
-
-
-                            </tbody>
-                          </table>
-
-                          <style>
-                            #tableDiv {
-                              display: none;
-                              /* Sembunyikan div pada awalnya */
-                              margin-top: 20px;
-                            }
-
-                            table {
-                              width: 100%;
-                              border-collapse: collapse;
-                            }
-
-                            table,
-                            th,
-                            td {
-                              border: 1px solid black;
-                            }
-
-                            th,
-                            td {
-                              padding: 10px;
-                              text-align: left;
-                            }
-                          </style>
-
-
-                          <!-- Div yang akan ditampilkan -->
-                          <div id="tableDiv">
-                            <table>
-                              <thead>
-                                <tr>
-                                  <th>Kolom 1</th>
-                                  <th>Kolom 2</th>
-                                  <th>Kolom 3</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <tr>
-                                  <td>Data 1</td>
-                                  <td>Data 2</td>
-                                  <td>Data 3</td>
-                                </tr>
-                                <tr>
-                                  <td>Data 4</td>
-                                  <td>Data 5</td>
-                                  <td>Data 6</td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-
-                        </div>
 
                         <!-- Selesai -->
                       </div>
@@ -934,6 +391,8 @@
                               <th style="width: 100px;" bgcolor="#9fb7b7">Link File</th>
                               <th style="width: 120px;" bgcolor="#9fb7b7">Tanggal Upload</th>
                               <th style="width: 150px;" bgcolor="#9fb7b7">Upload File</th>
+                              <th style="width: 150px;" bgcolor="#9fb7b7">Review File</th>
+
                               <!-- <th style="width: 150px;" bgcolor="#9fb7b7">Sub dokumen</th>
                               <th style="width: 150px;" bgcolor="#9fb7b7">Sub dokumen</th>
                               <th style="width: 150px;" bgcolor="#9fb7b7">Checklist</th> -->
@@ -971,38 +430,48 @@
 
                                 </td>
 
-                                  <td align="left">
+                                <td align="left">
 
-                                    <!-- Cek data Validasi -->
-                                    <!-- Mulai -->
+                                  <!-- Cek data Validasi -->
+                                  <!-- Mulai -->
 
-                                    <!-- <form action="aksi_upload_SPM" method="post" enctype="multipart/form-data"> -->
-                                    <form action="<?= base_url('Admin/Upload_Perusahaan/aksi_upload_SPM'); ?>" method="post" enctype="multipart/form-data">
-                                        <input type="hidden" size="20" name="id_perusahaan" value="<?= $kode_perusahaan; ?>">
-                                        <input type="hidden" name="id_spm" value="<?= $get_SPM_data->id; ?>">
-                                        <input class="form-control" type="hidden" id="segement3" name="segement3"
-                                        value="<?= $segement3; ?>" readonly />
-                                        <input type="file" size="20" name="fileToUpload" id="fileToUpload">
-                                        <input type="submit" name="submit" value="UPLOAD">
-                                    </form>
+                                  <!-- <form action="aksi_upload_SPM" method="post" enctype="multipart/form-data"> -->
+                                  <form action="<?= base_url('Admin/Upload_Perusahaan/aksi_upload_SPM'); ?>" method="post"
+                                    enctype="multipart/form-data">
+                                    <input type="hidden" size="20" name="id_perusahaan" value="<?= $kode_perusahaan; ?>">
+                                    <input type="hidden" name="id_spm" value="<?= $get_SPM_data->id; ?>">
+                                    <input class="form-control" type="hidden" id="segement3" name="segement3"
+                                      value="<?= $segement3; ?>" readonly />
+                                    <input type="hidden" name="tahun_audit" id="tahun_audit_hidden" value="">
+                                    <input type="file" size="20" name="fileToUpload" id="fileToUpload">
+                                    <input type="submit" name="submit" value="UPLOAD">
+                                  </form>
 
-                                    <!-- selesau -->
+                                  <script>
 
-                                  </td>
+                                    document.getElementById('uploadForm').addEventListener('submit', function (event) {
+                                      var tahunAudit = document.getElementById('tahun_audit').value;
 
-                                  <!-- <td align="left">
+                                      if (tahunAudit === "") {
+                                        alert("Pilih Tahun Audit terlebih dahulu!");
+                                        event.preventDefault(); // Hentikan submit jika tahun audit belum dipilih
+                                      } else {
+                                        document.getElementById('tahun_audit_hidden').value = tahunAudit; // Set nilai tahun audit di input hidden
+                                      }
+                                    });
 
-                                    <?php echo $get_SPM_data->sub_dokumen ?>
-                                  </td>
-                                  <td align="left">
-                                    <?php echo $get_SPM_data->jumlah ?>
-                                  </td>
+                                  </script>
 
-                                  <td align="left">
-                                  <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
-                                  </td> -->
+                                  <!-- selesau -->
+
+                                </td>
 
 
+                                <td>
+                                  <?php if ($get_SPM_data->status_upload == 1): ?>
+                                    Test
+                                  <?php endif; ?>
+                                </td>
                               </tr>
                               <?php $j++; ?>
                             <?php endforeach; ?>
@@ -2105,152 +1574,152 @@
           </div><!-- /card Body-->
 
 
-          <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+          <script src="https://code.jquery.com/jquery-3.6.0.min.js"></scrip >
 
-          <script>
-            $(document).ready(function () {
-
-
-              // alert($('#daftar_akun').length);
-              // Mulai
-              $('#daftar_akun').change(function () {
-                var selectedValue = $(this).val();
-                console.log("User is Run");
-
-                if (selectedValue) {
-                  $.ajax({
-                    url: '<?php echo base_url('admin/Upload_Perusahaan/get_data'); ?>',
-                    type: 'POST',
-                    data: { id: selectedValue },
-                    dataType: 'json',
-                    success: function (response) {
-
-                      // alert("test");
-                      // alert(selectedValue);
-
-                      if (response.status == 'success') {
-                        var tableBody = $('#table-body');
-                        tableBody.empty(); // Bersihkan isi tabel
-
-                        var tableBody = $('#table-body');
-                        tableBody.empty(); // Bersihkan isi tabel
-
-                        $.each(response.data, function (index, item) {
-                          var row = '<tr>' +
-                            '<td>' + (index + 1) + '</td>' + // Nomor urut otomatis
-                            // '<td>' + item.nama_akun + '</td>' +
-                            '<td>' + item.list + '</td>';
+              <script>
+                $(document).ready(function () {
 
 
-                          // Cek jika item.no_list tidak kosong atau tidak null
-                          if (item.file_path !== undefined && item.file_path !== null && item.file_path.trim() !== '') {
-                            row += '<td style="background-color: #f4ea94;">' +
-                              // '<a href="' + item.file_path + '" target="_blank">' + item.file_path + '</a>' +
-                              '<a href="' + item.file_path + '" target="_blank">' + item.file_path.substr(0, 10) + '</a>'
-                            '</td>';
+                  // alert($('#daftar_akun').length);
+                  // Mulai
+                  $('#daftar_akun').change(function () {
+                    var selectedValue = $(this).val();
+                    console.log("User is Run");
+
+                    if (selectedValue) {
+                      $.ajax({
+                        url: '<?php echo base_url('admin/Upload_Perusahaan/get_data'); ?>',
+                        type: 'POST',
+                        data: { id: selectedValue },
+                        dataType: 'json',
+                        success: function (response) {
+
+                          // alert("test");
+                          // alert(selectedValue);
+
+                          if (response.status == 'success') {
+                            var tableBody = $('#table-body');
+                            tableBody.empty(); // Bersihkan isi tabel
+
+                            var tableBody = $('#table-body');
+                            tableBody.empty(); // Bersihkan isi tabel
+
+                            $.each(response.data, function (index, item) {
+                              var row = '<tr>' +
+                                '<td>' + (index + 1) + '</td>' + // Nomor urut otomatis
+                                // '<td>' + item.nama_akun + '</td>' +
+                                '<td>' + item.list + '</td>';
+
+
+                              // Cek jika item.no_list tidak kosong atau tidak null
+                              if (item.file_path !== undefined && item.file_path !== null && item.file_path.trim() !== '') {
+                                row += '<td style="background-color: #f4ea94;">' +
+                                  // '<a href="' + item.file_path + '" target="_blank">' + item.file_path + '</a>' +
+                                  '<a href="' + item.file_path + '" target="_blank">' + item.file_path.substr(0, 10) + '</a>'
+                                '</td>';
+                              } else {
+                                row += '<td>' + item.file_path + '</td>';
+                              }
+
+                              //  $value = "Hello, World!";  
+                              // echo substr($value, 0, 5); // Outputs: Hello 
+
+                              row += '<td>' +
+                                '<form action="aksi_upload" method="post" enctype="multipart/form-data">' +
+                                '<input type="hidden" size="20" name="id_perusahaan" value="<?= $kode_perusahaan; ?>">' +
+                                '<input type="hidden" name="dept" value="' + item.nama_akun + '">' +
+                                '<input type="hidden" name="akun" value="' + item.list + '">' +
+                                '<input type="hidden" name="no_list" value="' + (item.no_list || '') + '">' +
+                                '<input type="hidden" name="no_akun" value="' + item.no_akun + '">' +
+                                '<input type="file" size="20" name="fileToUpload" id="fileToUpload' + index + '">' +
+                                '<input type="submit" name="submit" value="UPLOAD">' +
+                                '</form>' +
+                                '</td>' +
+                                '</tr>';
+
+                              tableBody.append(row);
+                              document.getElementById("nama_akun_header").value = item.nama_akun;
+                            });
+
+
+                            $('#table-container').show(); // Tampilkan tabel
+
+                            // selesai
+
+                            //             // Mulai
+                            // $('#daftar_akun_all').change(function () {
+                            //   var selectedValue = $(this).val();
+                            //   console.log("User is Run");
+
+                            //   if (selectedValue) {
+                            //     $.ajax({
+                            //       url: '<?php echo base_url('admin/Upload_Perusahaan/get_data'); ?>',
+                            //       type: 'POST',
+                            //       data: { id: selectedValue },
+                            //       dataType: 'json',
+                            //       success: function (response) {
+
+                            //         // alert("test");
+                            //         // alert(selectedValue);
+
+                            //         if (response.status == 'success') {
+                            //           var tableBody = $('#table-body');
+                            //           tableBody.empty(); // Clear the table body         
+                            //           $.each(response.data, function (index, item) {
+                            //             var row = '<tr>' +
+                            //               '<td>' + (index + 1) + '</td>' + // Nomor urut otomatis
+                            //               '<td>' + item.list + '</td>' +
+                            //               '<td><input type="file" name="fileToUpload" id="fileToUpload' + index + '"></td>' +
+                            //               '</tr>';
+                            //             tableBody.append(row);
+                            //           });
+                            //           $('#table-container').show(); // Show the table
+
+                            //           // selesai
+
+
+                            // $('#save-button').on('click', function () {
+                            //   tableBody.find('tr').each(function (index) {
+                            //     var row = $(this);
+                            //     var listItem = row.find('td:eq(1)').text();
+                            //     var fileInput = row.find('input[type="file"]')[0];
+                            //     var file = fileInput.files[0];
+
+                            //     var formData = new FormData();
+                            //     formData.append('list', listItem);
+                            //     formData.append('fileToUpload', file);
+
+
+                            //     $.ajax({
+                            //       url: '<?php echo site_url('admin/Upload_Perusahaan/simpan_data'); ?>',
+                            //       type: 'POST',
+                            //       data: formData,
+                            //       processData: false,
+                            //       contentType: false,
+                            //       success: function (response) {
+                            //         console.log('Data berhasil disimpan:', response);
+                            //       },
+                            //       error: function (xhr, status, error) {
+                            //         console.error('Gagal menyimpan data:', error);
+                            //       }
+                            //     });
+
+                            //     // alert("simpan");
+
+                            //   });
+                            // });
+
+
                           } else {
-                            row += '<td>' + item.file_path + '</td>';
+                            alert('No data found');
+                            $('#table-container').hide(); // Hide the table
                           }
-
-                          //  $value = "Hello, World!";  
-                          // echo substr($value, 0, 5); // Outputs: Hello 
-
-                          row += '<td>' +
-                            '<form action="aksi_upload" method="post" enctype="multipart/form-data">' +
-                            '<input type="hidden" size="20" name="id_perusahaan" value="<?= $kode_perusahaan; ?>">' +
-                            '<input type="hidden" name="dept" value="' + item.nama_akun + '">' +
-                            '<input type="hidden" name="akun" value="' + item.list + '">' +
-                            '<input type="hidden" name="no_list" value="' + (item.no_list || '') + '">' +
-                            '<input type="hidden" name="no_akun" value="' + item.no_akun + '">' +
-                            '<input type="file" size="20" name="fileToUpload" id="fileToUpload' + index + '">' +
-                            '<input type="submit" name="submit" value="UPLOAD">' +
-                            '</form>' +
-                            '</td>' +
-                            '</tr>';
-
-                          tableBody.append(row);
-                          document.getElementById("nama_akun_header").value = item.nama_akun;
-                        });
-
-
-                        $('#table-container').show(); // Tampilkan tabel
-
-                        // selesai
-
-                        //             // Mulai
-                        // $('#daftar_akun_all').change(function () {
-                        //   var selectedValue = $(this).val();
-                        //   console.log("User is Run");
-
-                        //   if (selectedValue) {
-                        //     $.ajax({
-                        //       url: '<?php echo base_url('admin/Upload_Perusahaan/get_data'); ?>',
-                        //       type: 'POST',
-                        //       data: { id: selectedValue },
-                        //       dataType: 'json',
-                        //       success: function (response) {
-
-                        //         // alert("test");
-                        //         // alert(selectedValue);
-
-                        //         if (response.status == 'success') {
-                        //           var tableBody = $('#table-body');
-                        //           tableBody.empty(); // Clear the table body         
-                        //           $.each(response.data, function (index, item) {
-                        //             var row = '<tr>' +
-                        //               '<td>' + (index + 1) + '</td>' + // Nomor urut otomatis
-                        //               '<td>' + item.list + '</td>' +
-                        //               '<td><input type="file" name="fileToUpload" id="fileToUpload' + index + '"></td>' +
-                        //               '</tr>';
-                        //             tableBody.append(row);
-                        //           });
-                        //           $('#table-container').show(); // Show the table
-
-                        //           // selesai
-
-
-                        // $('#save-button').on('click', function () {
-                        //   tableBody.find('tr').each(function (index) {
-                        //     var row = $(this);
-                        //     var listItem = row.find('td:eq(1)').text();
-                        //     var fileInput = row.find('input[type="file"]')[0];
-                        //     var file = fileInput.files[0];
-
-                        //     var formData = new FormData();
-                        //     formData.append('list', listItem);
-                        //     formData.append('fileToUpload', file);
-
-
-                        //     $.ajax({
-                        //       url: '<?php echo site_url('admin/Upload_Perusahaan/simpan_data'); ?>',
-                        //       type: 'POST',
-                        //       data: formData,
-                        //       processData: false,
-                        //       contentType: false,
-                        //       success: function (response) {
-                        //         console.log('Data berhasil disimpan:', response);
-                        //       },
-                        //       error: function (xhr, status, error) {
-                        //         console.error('Gagal menyimpan data:', error);
-                        //       }
-                        //     });
-
-                        //     // alert("simpan");
-
-                        //   });
-                        // });
-
-
-                      } else {
-                        alert('No data found');
-                        $('#table-container').hide(); // Hide the table
-                      }
+                        }
+                      });
+                    } else {
+                      $('#table-container').hide(); // Hide the table if no value is selected
                     }
                   });
-                } else {
-                  $('#table-container').hide(); // Hide the table if no value is selected
-                }
-              });
             });
           </script>
 
@@ -2338,17 +1807,17 @@
   <script src="<?php echo base_url('assets/nprogress/nprogress.js') ?>"></script>
 
   <script type="text/javascript">
-    $(document).ready(function () {
+                                                                        $(document).ready(function () {
 
-      $('#nama_siswa').autocomplete({
-        source: "<?php echo site_url('admin/bayar_catering/get_autocomplete'); ?>",
-        select: function (event, ui) {
-          $('[name="nama_siswa"]').val(ui.item.label);
-          $('[name="nis"]').val(ui.item.nomor);
-          $('[name="kelas"]').val(ui.item.kelas);
+                                                                          $('#nama_siswa').autocomplete({
+                                                                            source: "<?php echo site_url('admin/bayar_catering/get_autocomplete'); ?>",
+                                                                            select: function (event, ui) {
+                                                                              $('[name="nama_siswa"]').val(ui.item.label);
+                                                                              $('[name="nis"]').val(ui.item.nomor);
+                                                                              $('[name="kelas"]').val(ui.item.kelas);
 
-        }
-      });
+                                                                            }
+                                                                          });
 
     });
   </script>
@@ -2370,32 +1839,32 @@
   <script src="<?php echo base_url('assets/pdfmake/build/pdfmake.min.js') ?>"></script>
   <script src="<?php echo base_url('assets/pdfmake/build/vfs_fonts.js') ?>"></script>
   <script type="text/javascript">
-    $(document).ready(function () {
-      $('table.display').DataTable();
+                                                                        $(document).ready(function () {
+                                                                          $('table.display').DataTable();
     });
 
 
   </script>
 
   <script>
-    function showDiv(divId) {
+                                                                        function showDiv(divId) {
 
 
-      // Sembunyikan semua div dengan id 'hrd-legal' dan 'finance-dept'
-      document.getElementById('hrd-legal').style.display = 'none';
-      document.getElementById('finance-dept').style.display = 'none';
-      document.getElementById('spm-dept').style.display = 'none';
+                                                                          // Sembunyikan semua div dengan id 'hrd-legal' dan 'finance-dept'
+                                                                          document.getElementById('hrd-legal').style.display = 'none';
+                                                                        document.getElementById('finance-dept').style.display = 'none';
+                                                                        document.getElementById('spm-dept').style.display = 'none';
 
 
-      // Tampilkan div yang dipilih
-      document.getElementById(divId).style.display = 'block';
+                                                                        // Tampilkan div yang dipilih
+                                                                        document.getElementById(divId).style.display = 'block';
 
     }
 
-    // Tampilkan div pertama secara default
-    document.getElementById('hrd-legal').style.display = 'block';
-    document.getElementById('finance-dept').style.display = 'none';
-    document.getElementById('spm-dept').style.display = 'none';
+                                                                        // Tampilkan div pertama secara default
+                                                                        document.getElementById('hrd-legal').style.display = 'block';
+                                                                        document.getElementById('finance-dept').style.display = 'none';
+                                                                        document.getElementById('spm-dept').style.display = 'none';
 
   </script>
 
@@ -2414,16 +1883,16 @@
   <script type="text/javascript">
 
 
-    $('#myDatepicker2').datetimepicker({
-      format: 'DD/MM/YYYY'
+                                                                        $('#myDatepicker2').datetimepicker({
+                                                                          format: 'DD/MM/YYYY'
     });
 
-    $('#myDatepicker3').datetimepicker({
-      format: 'YYYY'
+                                                                        $('#myDatepicker3').datetimepicker({
+                                                                          format: 'YYYY'
     });
 
-    $('#myDatepicker4').datetimepicker({
-      format: 'MM'
+                                                                        $('#myDatepicker4').datetimepicker({
+                                                                          format: 'MM'
     });
 
 

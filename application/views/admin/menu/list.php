@@ -44,7 +44,7 @@
                 <div class="x_title">
                   <h2>Menu</h2>
                   <!-- <ul class="nav navbar-right panel_toolbox"><a href="#"  data-toggle="modal" data-target="#filterModal" class="btn btn-info"><i class="fa fa-filter"></i> Filter</a></ul> -->
-                  <ul class="nav navbar-right panel_toolbox"><a href="<?php echo site_url('admin/menu/add') ?>" class="btn btn-success"><i class="fa fa-plus"></i> Tambah</a></ul>
+                  <ul class="nav navbar-right panel_toolbox"><a href="<?php echo site_url('admin/Internal_operasional/add') ?>" class="btn btn-success"><i class="fa fa-plus"></i> Tambah</a></ul>
                   <div class="clearfix"></div>
                 </div>
                 <div class="x_content">

@@ -15,6 +15,9 @@ class Upload_Perusahaan extends CI_Controller
         $this->load->model("M_ami");
         $this->load->helper(array('form', 'url'));
 
+        if($this->user_model->isNotLogin()) redirect(site_url('login'));
+
+
 
     }
 
@@ -83,7 +86,6 @@ class Upload_Perusahaan extends CI_Controller
             log_message('info', 'File uploaded successfully: ' . json_encode($this->upload->data()));
 
 
-
             $data = $this->upload->data(); // Get the file upload data  
             $filePath = $data['full_path']; // Full path to the uploaded file  
             $fileName = $data['file_name']; // Name of the uploaded file  
@@ -103,18 +105,16 @@ class Upload_Perusahaan extends CI_Controller
                 'no_akun' => $this->input->post('no_akun'),
                 'no_list' => $this->input->post('no_list'),
                 'nama_file' => $fileName,
-                'tanggal_upload' => $date
+                'tanggal_upload' => $date,
+                'status_upload' => 1,
+
+                'tahun_buku' => $this->input->post('tahun_audit')
             );
 
-            if ($status_pages == "Add") {
+               // $this->M_Upload_perusahaan->insert_upload($uploadData);
+               $this->db->insert('upload_perusahaan', $uploadData); // Ganti 'uploads' dengan nama tabel tempat menyimpan data upload
+               echo $this->db->last_query();
 
-                $this->M_Upload_perusahaan->insert_upload($uploadData);
-
-            } else {
-
-                $this->M_Upload_perusahaan->update_upload($uploadData);
-
-            }
 
             $this->session->set_flashdata('success', $akun . ' Berhasil diUpload');
             redirect('admin/Upload_Perusahaan/addperushaan');
@@ -325,12 +325,13 @@ class Upload_Perusahaan extends CI_Controller
         // Panggil data perusahaan yang sudah ada
 
         $perusahaan = $this->db->query("SELECT perusahaan.user_id as user_id, perusahaan.kode_perusahaan as kode_perusahaan
-        FROM user user INNER JOIN perusahaan perusahaan ON user.user_id = perusahaan.user_id WHERE perusahaan.user_id = '" . $this->session->userdata('id') . "'")->result_array();
+        FROM user user INNER JOIN perusahaan perusahaan ON user.kode_user = perusahaan.user_id  WHERE perusahaan.user_id = '" . $this->session->userdata('id') . "'")->result_array();
 
         // Panggil ID Perusahaan
         $user_id = array_column($perusahaan, 'user_id');
         $kode_perusahaan = array_column($perusahaan, 'kode_perusahaan');
 
+        $data["Get_taun_buku"] = $this->M_Upload_perusahaan->GetTahunBukuPerusahaan();
 
 
         // Membuat Data Yang sudah ada
@@ -362,7 +363,7 @@ class Upload_Perusahaan extends CI_Controller
 
 
         // Panggil Data Upload
-        $tabel_data_upload = empty($user_id) ? "temp_upload_perusahaan" : "upload_perusahaan";
+        $tabel_data_upload = "upload_perusahaan";
         $status_pages = empty($user_id) ? "Add" : "Edit";
         $data['status_pages'] = $status_pages;
 
@@ -418,11 +419,11 @@ class Upload_Perusahaan extends CI_Controller
             // Panggil data perusahaan yang sudah ada
 
             $perusahaan = $this->db->query("SELECT perusahaan.user_id as user_id_perusahaan, perusahaan.kode_perusahaan as kode_perusahaan
-            FROM user user INNER JOIN perusahaan perusahaan ON user.user_id = perusahaan.user_id WHERE perusahaan.user_id = '" . $user_id . "'")->result_array();
+            FROM user user INNER JOIN perusahaan perusahaan ON user.kode_user = perusahaan.user_id  WHERE perusahaan.kode_perusahaan = '" . $user_id . "'")->result_array();
 
 
             // Debugging: Tampilkan query terakhir
-          //  echo $this->db->last_query();
+        //   echo $this->db->last_query();
 
             // Tampilkan hasil
 //            print_r($perusahaan);
@@ -431,17 +432,26 @@ class Upload_Perusahaan extends CI_Controller
             $user_id_perusahaan = array_column($perusahaan, 'user_id_perusahaan');
             $kode_perusahaan_audit = array_column($perusahaan, 'kode_perusahaan');
 
-            $data['kode_perusahaan'] = $kode_perusahaan_audit[0];
-            $data['user_perusahaan'] = $user_id;
+            if (!empty($kode_perusahaan_audit[0])) {
+                $data['kode_perusahaan'] = $kode_perusahaan_audit[0];
+                $data['user_perusahaan'] =  $user_id_perusahaan[0];
 
+            } else {
+                $data['kode_perusahaan'] = '';
+                $data['user_perusahaan'] = '';
+                // die('Error: Kondisi yang tidak diinginkan ditemukan.');
+
+            }
+            
             // Panggil Data Upload
-            $tabel_data_upload = empty($user_id_perusahaan) ? "temp_upload_perusahaan" : "upload_perusahaan";
+            $tabel_data_upload = 'upload_perusahaan';
             $status_pages = empty($user_id_perusahaan) ? "Add" : "Edit";
             $data['status_pages'] = $status_pages;
 
 
             // HRD & LEGAL , DEPT , ACC , TAX & ETC..
             $data["Get_Legal_HRD"] = $this->M_Upload_perusahaan->get_data_by_id_LegalHRD($tabel_data_upload, $data['kode_perusahaan']);
+            echo $this->db->last_query();
             $data["Get_Akata"] = $this->M_Upload_perusahaan->get_data_by_id_Akta($tabel_data_upload, $data['kode_perusahaan']);
             $data["Get_Laporan"] = $this->M_Upload_perusahaan->get_data_by_id_Laporan($tabel_data_upload, $data['kode_perusahaan']);
             $data["Get_Kas_Setara_Kas"] = $this->M_Upload_perusahaan->get_data_by_id_Kas_Setara_kas($tabel_data_upload, $data['kode_perusahaan']);
@@ -470,6 +480,8 @@ class Upload_Perusahaan extends CI_Controller
             $data["daftar_akun_ALL"] = $this->M_Daftar_akun->getAllDeptALL();
 
             $data["Get_data_perusahaan"] = $this->M_Upload_perusahaan->GerUserPerusahaan();
+            $data["Get_taun_buku"] = $this->M_Upload_perusahaan->GetTahunBukuPerusahaan();
+
 
 
             $data["Data_icon"] = $this->M_Upload_perusahaan->getIcon();
