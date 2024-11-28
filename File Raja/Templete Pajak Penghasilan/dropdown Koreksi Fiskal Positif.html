@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropdown List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        form {
+            margin: 20px;
+        }
+        label {
+            margin-right: 10px;
+        }
+        select, input {
+            padding: 5px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+        .dropdown-container {
+            margin-bottom: 10px;
+        }
+        .icon {
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+  
+        <div class="dropdown-container">
+            <label for="koreksi-fiskal-positif-0">Koreksi Fiskal Positif:
+            <br>
+            <h5>Catatan : Biaya yang telah dibukukan namun tidak berhubungan dengan pendapatan (Mendapat, Menagih & Memelihara):</h5>
+            </label>
+            <select id="koreksi-fiskal-positif-0" name="koreksi-fiskal-positif" onchange="toggleTextbox(this)">
+                <option value="">-- Pilih Akun Koreksi --</option>
+                <option value="beban-pokok-pendapatan">Beban Pokok Pendapatan</option>
+                <option value="beban-pajak">Beban Pajak</option>
+                <option value="beban-listrik-air-telepon">Beban Listrik, Air, dan Telepon</option>
+                <option value="beban-perijinan">Beban Perijinan</option>
+                <option value="beban-jasa-profesional">Beban Jasa Profesional</option>
+                <option value="beban-rumah-tangga-kantor">Beban Rumah Tangga Kantor</option>
+                <option value="beban-entertain-jamuan">Beban Entertain dan Jamuan</option>
+                <option value="beban-kebersihan-keamanan">Beban Kebersihan dan Keamanan</option>
+                <option value="beban-pajak-jasa-giro">Beban Pajak Jasa Giro</option>
+                <option value="beban-lain-lain">Beban Lain-lain</option>
+            </select>
+            <span class="icon" onclick="addDropdown()">&#43;</span>
+            <span class="icon" onclick="removeDropdown(this)">&#x1F5D1;</span>
+            <div class="textbox-container hidden">
+                <label for="revenue-0">Isi Data:</label>
+                <input type="text" id="revenue-0" name="revenue" oninput="formatInputField(event)">
+            </div>
+        </div>
+		  <div id="dropdown-form">
+    </div>
+
+    <script>
+        function addDropdown() {
+            var dropdownContainer = document.createElement('div');
+            dropdownContainer.className = 'dropdown-container';
+            
+            var newLabel = document.createElement('label');
+            var labelText = document.createTextNode('Koreksi Fiskal Positif:');
+            newLabel.appendChild(labelText);
+
+            var newSelect = document.createElement('select');
+            var selectId = 'koreksi-fiskal-positif-' + document.querySelectorAll('select').length;
+            newSelect.id = selectId;
+            newSelect.name = 'koreksi-fiskal-positif';
+            newSelect.innerHTML = `
+                <option value="">-- Pilih Akun Koreksi --</option>
+                <option value="beban-pokok-pendapatan">Beban Pokok Pendapatan</option>
+                <option value="beban-pajak">Beban Pajak</option>
+                <option value="beban-listrik-air-telepon">Beban Listrik, Air, dan Telepon</option>
+                <option value="beban-perijinan">Beban Perijinan</option>
+                <option value="beban-jasa-profesional">Beban Jasa Profesional</option>
+                <option value="beban-rumah-tangga-kantor">Beban Rumah Tangga Kantor</option>
+                <option value="beban-entertain-jamuan">Beban Entertain dan Jamuan</option>
+                <option value="beban-kebersihan-keamanan">Beban Kebersihan dan Keamanan</option>
+                <option value="beban-pajak-jasa-giro">Beban Pajak Jasa Giro</option>
+                <option value="beban-lain-lain">Beban Lain-lain</option>
+            `;
+            newSelect.addEventListener('change', function() {
+                toggleTextbox(this);
+            });
+
+            var newAddIcon = document.createElement('span');
+            newAddIcon.className = 'icon';
+            newAddIcon.innerHTML = '&#43;';
+            newAddIcon.onclick = addDropdown;
+
+            var newRemoveIcon = document.createElement('span');
+            newRemoveIcon.className = 'icon';
+            newRemoveIcon.innerHTML = '&#x1F5D1;';
+            newRemoveIcon.onclick = function() {
+                removeDropdown(newRemoveIcon);
+            };
+
+            var newTextboxContainer = document.createElement('div');
+            newTextboxContainer.className = 'textbox-container hidden';
+            var newTextboxLabel = document.createElement('label');
+            newTextboxLabel.setAttribute('for', 'revenue-' + document.querySelectorAll('.textbox-container').length);
+            newTextboxLabel.innerText = 'Isi Data:';
+            var newTextbox = document.createElement('input');
+            newTextbox.type = 'text';
+            newTextbox.id = 'revenue-' + document.querySelectorAll('.textbox-container').length;
+            newTextbox.name = 'revenue';
+            newTextbox.oninput = formatInputField;
+
+            newTextboxContainer.appendChild(newTextboxLabel);
+            newTextboxContainer.appendChild(newTextbox);
+
+            dropdownContainer.appendChild(newLabel);
+            dropdownContainer.appendChild(newSelect);
+            dropdownContainer.appendChild(newAddIcon);
+            dropdownContainer.appendChild(newRemoveIcon);
+            dropdownContainer.appendChild(newTextboxContainer);
+
+            document.getElementById('dropdown-form').appendChild(dropdownContainer);
+        }
+
+        function removeDropdown(icon) {
+            var container = icon.parentElement;
+            container.remove();
+        }
+
+        function toggleTextbox(selectElement) {
+            var textboxContainer = selectElement.nextElementSibling.nextElementSibling.nextElementSibling;
+            if (selectElement.value) {
+                textboxContainer.classList.remove('hidden');
+            } else {
+                textboxContainer.classList.add('hidden');
+            }
+        }
+
+        function formatInputField(event) {
+            var input = event.target;
+            input.value = input.value.replace(/[^0-9]/g, ''); // Hanya memperbolehkan angka
+        }
+    </script>
+</body>
+</html>

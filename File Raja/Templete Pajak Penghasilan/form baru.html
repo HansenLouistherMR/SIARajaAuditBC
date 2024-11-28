@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perhitungan Pajak</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .title-box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #333;
+            margin: 0;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script>
+        function formatNumberInput(input) {
+            let value = input.value.replace(/[^\d.-]/g, '');
+            let isNegative = value.startsWith('-');
+            value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            input.value = isNegative ? '-' + value : value;
+        }
+
+        function showAdditionalForm() {
+            let labaSebelumPajak = document.getElementById('laba_sebelum_pajak').value;
+            if (labaSebelumPajak !== '') {
+                document.getElementById('additionalForm').classList.remove('hidden');
+            } else {
+                document.getElementById('additionalForm').classList.add('hidden');
+            }
+        }
+
+        function calculatePenghasilanNeto() {
+            let labaSebelumPajak = parseFloat(document.getElementById('laba_sebelum_pajak').value.replace(/\./g, '')
+                .replace(',', '.')) || 0;
+            let koreksiPositif = [
+                    'beban_pokok_pendapatan', 'beban_pajak', 'beban_telepon_internet_listrik_air',
+                    'beban_perizinan_legalitas',
+                    'beban_jasa_profesional', 'beban_rumah_tangga_kantor', 'beban_entertain_jamuan',
+                    'beban_kebersihan_keamanan',
+                    'beban_pajak_jasa_giro', 'beban_lain_lain'
+                ].map(id => parseFloat(document.getElementById(id).value.replace(/\./g, '').replace(',', '.')) || 0)
+                .reduce((a, b) => a + b, 0);
+
+            let koreksiNegatif = [
+                    'penghasilan_final', 'pendapatan_jasa_giro', 'pendapatan_bunga_deposito'
+                ].map(id => parseFloat(document.getElementById(id).value.replace(/\./g, '').replace(',', '.')) || 0)
+                .reduce((a, b) => a + b, 0);
+
+            // Adjust for positive and negative values
+            koreksiPositif = koreksiPositif > 0 ? koreksiPositif : -koreksiPositif;
+            koreksiNegatif = koreksiNegatif < 0 ? koreksiNegatif : -koreksiNegatif;
+
+            let penghasilanNetoFiskal = labaSebelumPajak + koreksiPositif + koreksiNegatif;
+            document.getElementById('penghasilan_neto_fiskal').value = penghasilanNetoFiskal.toLocaleString('id-ID');
+
+            // Calculate and display the rounded down value
+            let penghasilanNetoFiskalDibulatkan = Math.floor(penghasilanNetoFiskal / 1000) * 1000;
+            document.getElementById('penghasilan_neto_fiskal_dibulatkan').value = penghasilanNetoFiskalDibulatkan
+                .toLocaleString('id-ID');
+
+            // Update the new fields
+            document.getElementById('peredaran_bruto').value = document.getElementById('omset').value;
+            document.getElementById('penghasilan_kena_pajak').value = document.getElementById(
+                'penghasilan_neto_fiskal_dibulatkan').value;
+
+            var peredaranBruto = document.getElementById('peredaran_bruto').value;
+            document.getElementById('textbox_b').value = peredaranBruto;
+
+            var penghasilanKenaPajak = document.getElementById('penghasilan_kena_pajak').value;
+            document.getElementById('textbox_c').value = penghasilanKenaPajak;
+
+            // Calculate the result for the new fields
+            calculateHasilData();
+        }
+
+        function calculateHasilData() {
+            let a = parseFloat(document.getElementById('textbox_a').value.replace(/\./g, '').replace(',', '.')) || 0;
+            let b = parseFloat(document.getElementById('textbox_b').value.replace(/\./g, '').replace(',', '.')) || 0;
+            let c = parseFloat(document.getElementById('textbox_c').value.replace(/\./g, '').replace(',', '.')) || 0;
+
+            let hasilData = (a / b) * c;
+            
+          //  let roundedNumber = Math.ceil(inputNumber);
+         //  let hasilDataHitung = roundUpNumber(hasilData);
+
+         //   alert(hasilDataHitung);
+
+            document.getElementById('hasil_data').value = hasilData.toLocaleString('id-ID');
+
+            let d = parseFloat(document.getElementById('hasil_data').value.replace(/\./g, '').replace(',', '.')) || 0;
+ 
+            let DapatFasilitas = (0.25 * 0.5) * hasilData;
+            document.getElementById('Tarif_a').value = DapatFasilitas.toLocaleString('id-ID');        
+            
+        }
+
+        function updateAndCalculate() {
+            formatNumberInput(this);
+            calculatePenghasilanNeto();
+        }
+
+        function handleFocus(event) {
+            if (event.target.value === '0') {
+                event.target.value = '';
+            }
+        }
+
+        function handleBlur(event) {
+            if (event.target.value === '') {
+                event.target.value = '0';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const inputs = document.querySelectorAll('input[type="text"]');
+            inputs.forEach(input => {
+                input.value = '0';
+                input.addEventListener('focus', handleFocus);
+                input.addEventListener('blur', handleBlur);
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div class="title-box">
+        <h2>Perhitungan pajak penghasilan perusahaan konstruksi PPh Final dan tidak final dengan peredaran usaha Rp.4,8
+            M sd Rp.50M:</h2>
+    </div>
+    <form action="/submit-saldo" method="post">
+        <label for="omset">Omset Perusahaan sebesar:</label>
+        <input type="text" id="omset" name="omset" oninput="formatNumberInput(this)" value="">
+
+        <label for="penghasilan_tidak_final">Penghasilan tidak final:</label>
+        <input type="text" id="penghasilan_tidak_final" name="penghasilan_tidak_final" oninput="formatNumberInput(this)"
+            value="">
+
+        <label for="penghasilan_final_jasa_konstruksi">Penghasilan final atas jasa konstruksi:</label>
+        <input type="text" id="penghasilan_final_jasa_konstruksi" name="penghasilan_final_jasa_konstruksi"
+            oninput="formatNumberInput(this)" value="">
+
+        <label for="laba_sebelum_pajak">Laba sebelum pajak:</label>
+        <input type="text" id="laba_sebelum_pajak" name="laba_sebelum_pajak"
+            oninput="updateAndCalculate.call(this); showAdditionalForm();" value="">
+    </form>
+
+    <form id="additionalForm" class="hidden" action="/submit-saldo" method="post">
+        <h3>Koreksi fiskal positif:</h3>
+        <label for="beban_pokok_pendapatan">Beban pokok pendapatan:</label>
+        <input type="text" id="beban_pokok_pendapatan" name="beban_pokok_pendapatan"
+            oninput="updateAndCalculate.call(this)" value="">
+
+        <label for="beban_pajak">Beban pajak:</label>
+        <input type="text" id="beban_pajak" name="beban_pajak" oninput="updateAndCalculate.call(this)" value="">
+
+        <label for="beban_telepon_internet_listrik_air">Beban telepon, internet, listrik, dan air:</label>
+        <input type="text" id="beban_telepon_internet_listrik_air" name="beban_telepon_internet_listrik_air"
+            oninput="updateAndCalculate.call(this)" value="">
+
+        <label for="beban_perizinan_legalitas">Beban perizinan dan legalitas:</label>
+        <input type="text" id="beban_perizinan_legalitas" name="beban_perizinan_legalitas"
+            oninput="updateAndCalculate.call(this)" value="">
+
+        <label for="beban_jasa_profesional">Beban jasa profesional:</label>
+        <input type="text" id="beban_jasa_profesional" name="beban_jasa_profesional"
+            oninput="updateAndCalculate.call(this)" value="">
+
+        <label for="beban_rumah_tangga_kantor">Beban rumah tangga kantor:</label>
+        <input type="text" id="beban_rumah_tangga_kantor" name="beban_rumah_tangga_kantor"
+            oninput="updateAndCalculate.call(this)" value="">
+
+        <label for="beban_entertain_jamuan">Beban entertain dan jamuan:</label>
+        <input type="text" id="beban_entertain_jamuan" name="beban_entertain_jamuan"
+            oninput="updateAndCalculate.call(this)" value="">
+
+        <label for="beban_kebersihan_keamanan">Beban kebersihan dan keamanan:</label>
+        <input type="text" id="beban_kebersihan_keamanan" name="beban_kebersihan_keamanan"
+            oninput="updateAndCalculate.call(this)" value="">
+
+        <label for="beban_pajak_jasa_giro">Beban pajak jasa giro:</label>
+        <input type="text" id="beban_pajak_jasa_giro" name="beban_pajak_jasa_giro"
+            oninput="updateAndCalculate.call(this)" value="">
+
+        <label for="beban_lain_lain">Beban lain-lain:</label>
+        <input type="text" id="beban_lain_lain" name="beban_lain_lain" oninput="updateAndCalculate.call(this)" value="">
+
+        <h3>Koreksi fiskal negatif:</h3>
+        <label for="penghasilan_final">Penghasilan final:</label>
+        <input type="text" id="penghasilan_final" name="penghasilan_final" oninput="updateAndCalculate.call(this)"
+            value="">
+
+        <label for="pendapatan_jasa_giro">Pendapatan jasa giro:</label>
+        <input type="text" id="pendapatan_jasa_giro" name="pendapatan_jasa_giro" oninput="updateAndCalculate.call(this)"
+            value="">
+
+        <label for="pendapatan_bunga_deposito">Pendapatan bunga deposito:</label>
+        <input type="text" id="pendapatan_bunga_deposito" name="pendapatan_bunga_deposito"
+            oninput="updateAndCalculate.call(this)" value="">
+
+        <h3>Penghasilan neto fiskal:</h3>
+        <label for="penghasilan_neto_fiskal">Penghasilan neto fiskal:</label>
+        <input type="text" id="penghasilan_neto_fiskal" name="penghasilan_neto_fiskal" readonly value="">
+
+        <h3>Penghasilan neto fiskal - Dibulatkan:</h3>
+        <label for="penghasilan_neto_fiskal_dibulatkan">Penghasilan neto fiskal - Dibulatkan:</label>
+        <input type="text" id="penghasilan_neto_fiskal_dibulatkan" name="penghasilan_neto_fiskal_dibulatkan" readonly
+            value="">
+
+        <h3>Pajak Penghasilan terhutang:</h3>
+        <label for="peredaran_bruto">Peredaran bruto:</label>
+        <input type="text" id="peredaran_bruto" name="peredaran_bruto" readonly value="">
+
+        <label for="penghasilan_kena_pajak">Penghasilan kena pajak:</label>
+        <input type="text" id="penghasilan_kena_pajak" name="penghasilan_kena_pajak" readonly value="">
+
+        <h3>Bagian penghasilan kena pajak dengan fasilitas:</h3>
+
+        <!-- Textbox A -->
+       ( <input type="text" id="textbox_a" name="textbox_a" oninput="formatNumberInput(this); calculateHasilData();"
+            value="" style="width: 100px;"> /
+
+        <!-- Textbox B -->
+        <input type="text" id="textbox_b" name="textbox_b" readonly value="" style="width: 100px;"> )  X
+
+        <!-- Textbox C -->
+        <input type="text" id="textbox_c" name="textbox_c" readonly value="" style="width: 100px;">
+
+        <!-- Textbox Hasil Data -->
+        <label for="hasil_data">Hasil:</label>
+        <input type="text" id="hasil_data" name="hasil_data" readonly value="">
+
+        <h3>Tarif </h3>
+        <label for="Tarif_a">22% X 50% X yang mendapatkan fasilitas:</label>
+        <input type="text" id="Tarif_a" name="Tarif_a" readonly value="">
+    </form>
+</body>
+
+</html>

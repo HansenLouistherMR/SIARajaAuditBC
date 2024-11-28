@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perhitungan Pajak Penghasilan</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: right;
+}
+
+button {
+    padding: 10px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#result {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+}
+
+</style>
+
+<script>
+    // Function to format number with thousand separators
+    function formatNumber(number) {
+        return number.toLocaleString('id-ID');
+    }
+
+    // Function to parse formatted number
+    function parseNumber(string) {
+        return parseFloat(string.replace(/\./g, ''));
+    }
+
+    // Function to calculate and update the tax fields
+    function calculateTax() {
+        const revenue = parseNumber(document.getElementById('revenue').value) || 0;
+        const nonFinalIncome = parseNumber(document.getElementById('nonFinalIncome').value) || 0;
+        const finalIncome = parseNumber(document.getElementById('finalIncome').value) || 0;
+        const preTaxProfit = parseNumber(document.getElementById('preTaxProfit').value) || 0;
+        const costOfGoodsSold = parseNumber(document.getElementById('costOfGoodsSold').value) || 0;
+        const taxExpense = parseNumber(document.getElementById('taxExpense').value) || 0;
+        const utilitiesExpense = parseNumber(document.getElementById('utilitiesExpense').value) || 0;
+        const licensingExpense = parseNumber(document.getElementById('licensingExpense').value) || 0;
+        const professionalServicesExpense = parseNumber(document.getElementById('professionalServicesExpense').value) || 0;
+        const officeHouseholdExpense = parseNumber(document.getElementById('officeHouseholdExpense').value) || 0;
+        const entertainmentExpense = parseNumber(document.getElementById('entertainmentExpense').value) || 0;
+        const cleaningSecurityExpense = parseNumber(document.getElementById('cleaningSecurityExpense').value) || 0;
+        const serviceTaxExpense = parseNumber(document.getElementById('serviceTaxExpense').value) || 0;
+        const otherExpenses = parseNumber(document.getElementById('otherExpenses').value) || 0;
+        const negativeCorrections = parseNumber(document.getElementById('negativeCorrections').value) || 0;
+        const finalIncomeCorrection = parseNumber(document.getElementById('finalIncomeCorrection').value) || 0;
+        const giroIncomeCorrection = parseNumber(document.getElementById('giroIncomeCorrection').value) || 0;
+        const depositIncomeCorrection = parseNumber(document.getElementById('depositIncomeCorrection').value) || 0;
+        const taxCredit = parseNumber(document.getElementById('taxCredit').value) || 0;
+
+        const positiveCorrections = costOfGoodsSold + taxExpense + utilitiesExpense + licensingExpense + professionalServicesExpense + officeHouseholdExpense + entertainmentExpense + cleaningSecurityExpense + serviceTaxExpense + otherExpenses;
+        const totalNegativeCorrections = negativeCorrections + finalIncomeCorrection + giroIncomeCorrection + depositIncomeCorrection;
+        const netIncome = preTaxProfit + positiveCorrections - totalNegativeCorrections;
+        const grossRevenue = revenue;
+        const taxBase = Math.floor(preTaxProfit / 1000) * 1000; // Penghasilan kena pajak
+        const facilityIncome = (4800000000 / grossRevenue) * taxBase;
+        const nonFacilityIncome = taxBase - facilityIncome;
+        const taxWithFacility = (0.22 * 0.50) * facilityIncome;
+        const taxWithoutFacility = 0.22 * nonFacilityIncome;
+        const totalTaxDue = taxWithFacility + taxWithoutFacility;
+        const taxNonFacility = 0.20 * nonFacilityIncome; // 20% of nonFacilityIncome
+
+        document.getElementById('grossRevenue').value = formatNumber(grossRevenue);
+        document.getElementById('netIncome').innerText = `Penghasilan Neto Fiskal: \${formatNumber(netIncome)}`;
+        document.getElementById('taxDue').innerText = `Pajak Penghasilan Terutang: \${formatNumber(totalTaxDue - taxCredit)}`;
+        document.getElementById('netIncomeField').value = formatNumber(preTaxProfit);
+        document.getElementById('roundedNetIncomeField').value = formatNumber(taxBase);
+        document.getElementById('taxBase').value = formatNumber(taxBase); // Set "Penghasilan kena pajak" field
+        document.getElementById('facilityIncome').value = formatNumber(facilityIncome); // Set "Bagian penghasilan kena pajak dengan fasilitas" field
+        document.getElementById('nonFacilityIncome').value = formatNumber(nonFacilityIncome); // Set "Penghasilan yang tidak mendapatkan fasilitas" field
+        document.getElementById('facilityTax').value = formatNumber(taxWithFacility); // Set "yang mendapatkan fasilitas" field
+        document.getElementById('nonFacilityTax').value = formatNumber(taxNonFacility); // Set "yang tidak mendapatkan fasilitas" field
+    }
+
+    // Function to toggle form visibility
+    function toggleForm() {
+        const form = document.getElementById('taxForm');
+        form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
+    }
+
+    // Function to update net income fields
+    function updateNetIncomeField() {
+        const preTaxProfit = parseNumber(document.getElementById('preTaxProfit').value) || 0;
+        document.getElementById('netIncomeField').value = formatNumber(preTaxProfit);
+        const roundedNetIncome = Math.floor(preTaxProfit / 1000) * 1000;
+        document.getElementById('roundedNetIncomeField').value = formatNumber(roundedNetIncome);
+    }
+
+    // Function to format input fields with thousand separators on input
+    function formatInputField(event) {
+        const value = event.target.value.replace(/\./g, '');
+        event.target.value = formatNumber(parseFloat(value) || 0);
+        calculateTax(); // Recalculate tax on input change
+    }
+</script>
+</head>
+<body>
+    <div class="container">
+        <h3>Perhitungan pajak penghasilan perusahaan konstruksi PPh Final dan tidak final dengan peredaran usaha Rp.4,8 M sd Rp.50M:</h3>
+        <button onclick="toggleForm()">Tampilkan/Sembunyikan Form</button>
+        <form id="taxForm" style="display: none;" oninput="calculateTax()">
+            <table>
+                <tr>
+                    <td><label for="revenue">Omset Perusahaan:</label></td>
+                    <td><input type="text" id="revenue" name="revenue" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="nonFinalIncome">Penghasilan Tidak Final:</label></td>
+                    <td><input type="text" id="nonFinalIncome" name="nonFinalIncome" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="finalIncome">Penghasilan Final Atas Jasa Konstruksi:</label></td>
+                    <td><input type="text" id="finalIncome" name="finalIncome" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="preTaxProfit">Laba Sebelum Pajak:</label></td>
+                    <td><input type="text" id="preTaxProfit" name="preTaxProfit" oninput="formatInputField(event)" onchange="updateNetIncomeField()" required></td>
+                </tr>
+                <tr>
+                 <td><br></td>
+                 <td><br></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong><u>Koreksi Fiskal Positif: </u></strong></td>
+                </tr>
+                <tr>
+                    <td><label for="costOfGoodsSold">- Beban Pokok Pendapatan:</label></td>
+                    <td><input type="text" id="costOfGoodsSold" name="costOfGoodsSold" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="taxExpense">- Beban Pajak:</label></td>
+                    <td><input type="text" id="taxExpense" name="taxExpense" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="utilitiesExpense">- Beban Listrik, Air, dan Telepon:</label></td>
+                    <td><input type="text" id="utilitiesExpense" name="utilitiesExpense" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="licensingExpense">- Beban Perijinan:</label></td>
+                    <td><input type="text" id="licensingExpense" name="licensingExpense" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="professionalServicesExpense">- Beban Jasa Profesional:</label></td>
+                    <td><input type="text" id="professionalServicesExpense" name="professionalServicesExpense" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="officeHouseholdExpense">- Beban Rumah Tangga Kantor:</label></td>
+                    <td><input type="text" id="officeHouseholdExpense" name="officeHouseholdExpense" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="entertainmentExpense">- Beban Entertain dan Jamuan:</label></td>
+                    <td><input type="text" id="entertainmentExpense" name="entertainmentExpense" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="cleaningSecurityExpense">- Beban Kebersihan dan Keamanan:</label></td>
+                    <td><input type="text" id="cleaningSecurityExpense" name="cleaningSecurityExpense" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="serviceTaxExpense">- Beban Pajak Jasa Giro:</label></td>
+                    <td><input type="text" id="serviceTaxExpense" name="serviceTaxExpense" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="otherExpenses">- Beban Lain-lain:</label></td>
+                    <td><input type="text" id="otherExpenses" name="otherExpenses" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong><u>Koreksi Fiskal Negatif: </u></strong></td>
+                </tr>
+                <tr>
+                    <td><label for="negativeCorrections">- Koreksi Fiskal Negatif Lainnya:</label></td>
+                    <td><input type="text" id="negativeCorrections" name="negativeCorrections" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="finalIncomeCorrection">- Penghasilan Final:</label></td>
+                    <td><input type="text" id="finalIncomeCorrection" name="finalIncomeCorrection" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="giroIncomeCorrection">- Pendapatan Jasa Giro:</label></td>
+                    <td><input type="text" id="giroIncomeCorrection" name="giroIncomeCorrection" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="depositIncomeCorrection">- Pendapatan Bunga Deposito:</label></td>
+                    <td><input type="text" id="depositIncomeCorrection" name="depositIncomeCorrection" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="netIncomeField"><strong>Penghasilan Neto Fiskal :</strong></label></td>
+                    <td><input type="text" id="netIncomeField" name="netIncomeField" readonly></td>
+                </tr>
+                <tr>
+                    <td><label for="roundedNetIncomeField"><strong>Penghasilan Neto Fiskal - Dibulatkan :</strong></label></td>
+                    <td><input type="text" id="roundedNetIncomeField" name="roundedNetIncomeField" readonly></td>
+                </tr>
+                <tr>
+                    <td><label for="taxCredit">Kredit Pajak :</label></td>
+                    <td><input type="text" id="taxCredit" name="taxCredit" oninput="formatInputField(event)" required></td>
+                </tr>
+                <tr>
+                    <td><label for="grossRevenue"><strong><u>Pajak Penghasilan terutang :</u></strong></label></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><label for="grossRevenue">Peredaran bruto :</label></td>
+                    <td><input type="text" id="grossRevenue" name="grossRevenue" readonly></td>
+                </tr>
+                <tr>
+                    <td><label for="taxBase">Penghasilan kena pajak :</label></td>
+                    <td><input type="text" id="taxBase" name="taxBase" readonly></td>
+                </tr>
+                <tr>
+                    <td><label for="facilityIncome">Bagian penghasilan kena pajak dengan fasilitas :</label></td>
+                    <td><input type="text" id="facilityIncome" name="facilityIncome" readonly></td>
+                </tr>
+                <tr>
+                    <td><label for="nonFacilityIncome">Penghasilan yang tidak mendapatkan fasilitas :</label></td>
+                    <td><input type="text" id="nonFacilityIncome" name="nonFacilityIncome" readonly></td>
+                </tr>
+                <tr>
+                    <td><label for="facilityTax">yang mendapatkan fasilitas :</label></td>
+                    <td><input type="text" id="facilityTax" name="facilityTax" readonly></td>
+                </tr>
+                <tr>
+                    <td><label for="nonFacilityTax">yang tidak mendapatkan fasilitas :</label></td>
+                    <td><input type="text" id="nonFacilityTax" name="nonFacilityTax" readonly></td>
+                </tr>
+            </table>
+        </form>
+        <div id="result">
+            <h2>Hasil Perhitungan</h2>
+            <p id="netIncome"></p>
+            <p id="taxDue"></p>
+        </div>
+    </div>
+</body>
+</html>
